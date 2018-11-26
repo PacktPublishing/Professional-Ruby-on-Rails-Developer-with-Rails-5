@@ -1,0 +1,75 @@
+Show chef feature - Text lecture
+Section 5, Lecture 106
+Show user feature:
+
+Update the show.html.erb view under views/chefs folder:
+
+<%= render 'shared/page_title', title: "Chef #{@chef.chefname}'s profile" %>
+<div class="row">
+  <div class="col-md-4 col-md-offset-4 center">
+    <%= gravatar_for @chef, size: 150 %>
+  </div>
+</div>
+
+<h4 align="center"><%= @chef.chefname %>'s recipes</h4>
+<%= render 'recipes/recipe', obj: @chef.recipes %>
+
+Create a new partial under app/views/recipes folder called _recipe.html.erb and fill it in with the loop code from the index.html.erb, also remove this code from the index.html.erb under the app/views/recipes folder and replace with a render:
+<% obj.each do |recipe| %>
+  <div class="row">
+    <div class="col-md-2">
+      <section class="chef_info center">
+        <%= gravatar_for(recipe.chef, size: 120) %>
+      </section>
+    </div>
+    <div class="col-md-8 well">
+      <h4><%= link_to recipe.name, recipe_path(recipe) %></h4>
+      <p><%= truncate(recipe.description, length: 150) %></p>
+      <p>
+        <span class="quiet"><small>Created 
+        <%= time_ago_in_words(recipe.created_at) %> ago</small></span>
+      </p> 
+    </div>
+  </div>
+<% end %>
+
+app/views/recipes/index.html.erb should look like below:
+<%= render 'shared/page_title', title: "showing all recipes" %>
+
+<%= render 'recipe', obj: @recipes %>
+
+In the chefs_controller.rb file, update the show action:
+  def show
+    @chef = Chef.find(params[:id])
+  end
+
+Create a new integration test for chefs show:
+rails generate integration_test chefs_show 
+and fill it in with the setup and test (chefs_show_test.rb):
+
+  def setup
+    @chef = Chef.create!(chefname: "mashrur", 
+                        email: "mashrur@example.com",
+                        password: "password", 
+                        password_confirmation: "password")
+    @recipe = Recipe.create(name: "vegetable saute", 
+        description: "great vegetable sautee, add vegetable and oil", 
+        chef: @chef)
+    @recipe2 = @chef.recipes.build(name: "chicken saute", 
+                          description: "great chicken dish")
+    @recipe2.save
+  end
+  
+  test "should get chefs show" do
+    get chef_path(@chef)
+    assert_template 'chefs/show'
+    assert_select "a[href=?]", recipe_path(@recipe), text: @recipe.name
+    assert_select "a[href=?]", recipe_path(@recipe2), text: @recipe2.name
+    assert_match @recipe.description, response.body
+    assert_match @recipe2.description, response.body
+    assert_match @chef.chefname, response.body
+  end
+
+rails test -> All tests should pass
+
+Preview in the browser as well

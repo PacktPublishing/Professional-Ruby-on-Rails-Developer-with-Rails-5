@@ -1,0 +1,6 @@
+Part 2 - Install Bootstrap and build homepage - Text lecture
+Section 3, Lecture 45
+Create a new file under app/assets/stylesheets folder called custom.css.scss:
+
+@import "bootstrap-sprockets";
+@import "bootstrap";

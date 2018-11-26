@@ -1,0 +1,71 @@
+Intro to ActionCable - Text lecture
+Section 7, Lecture 152
+WebSocket is a computer communications protocol, providing full-duplex communication channels over a single TCP connection
+
+- The WebSocket protocol makes more interaction between a browser and a web server possible, facilitating real-time data transfer from and to the server. 
+- This is made possible by providing a standardized way for the server to send content to the browser without being solicited by the client, and allowing for messages to be passed back and forth while keeping the connection open. 
+- In this way, a two-way (bi-directional) ongoing conversation can take place between a browser and the server.
+
+What you need to remember:
+- The realtime socket connection between the client (Browser) and server (Your web server/app) is handled by rails ActionCable. 
+
+- This communication is handled by Javascript wrappers for websockets on both ends
+
+You have to specify two things:
+1) In config/application.rb -> You have show the path in which the cable items will be exposed. It's the route which the client (browser) will call in order to make the websocket connection with the server (which is where the actioncable server will be mounted)
+
+2) In your config/routes.rb file -> You have to expose the actual path
+
+so in 1) You're saying where the path will be, and 2) You're giving the path
+
+The third part of this is the channel ->
+1) Here you'll mention where to stream from, you can have multiple websocket connections between browser and server, you have to name your stream something, for example, for our comments feature we'll name it comments
+
+2) Once the stream is established, from the server it's sending a stream, the client is now subscribed to new items that come in, so the server sends a message and client receives it
+
+Start:
+
+Under config folder application.rb file add in the following line in class Application:
+config.action_cable.mount_path = '/cable'
+
+In your config/routes.rb file, add in the following route:
+mount ActionCable.server => '/cable'
+
+In the app/channels/application_cable folder, open the connection.rb file and fill it in:
+module ApplicationCable
+  class Connection < ActionCable::Connection::Base
+    identified_by :current_chef
+    
+    def connect
+      self.current_chef = find_current_user
+    end
+    
+    def disconnect
+      
+    end
+    
+    protected
+    def find_current_user
+      if current_chef = Chef.find_by(id: cookies.signed[:chef_id])
+        current_chef
+      else
+        reject_unauthorized_connection
+      end
+    end
+  end
+end
+
+Update the sessions_controller.rb create action:
+
+  def create
+    chef = Chef.find_by(email: params[:session][:email].downcase)
+    if chef && chef.authenticate(params[:session][:password])
+      session[:chef_id] = chef.id
+      cookies.signed[:chef_id] = chef.id
+      flash[:success] = "You have successfully logged in"
+      redirect_to chef
+    else
+      flash.now[:danger] = "There was something wrong with your login information"
+      render 'new'
+    end
+  end

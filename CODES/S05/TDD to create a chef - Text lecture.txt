@@ -1,0 +1,55 @@
+TDD to create a chef - Text lecture
+Section 5, Lecture 104
+First create the integration tests for invalid and valid chef signup:
+
+  test "reject an invalid signup" do
+    get signup_path
+    assert_no_difference "Chef.count" do
+      post chefs_path, params: { chef: { chefname: " ", 
+                                 email: " ", password: "password",
+                                    password_confirmation: " " } }
+    end
+    assert_template 'chefs/new'
+    assert_select 'h2.panel-title'
+    assert_select 'div.panel-body'
+  end
+  
+  test "accept valid signup" do
+    get signup_path
+    assert_difference "Chef.count", 1 do
+      post chefs_path, params: { chef: { chefname: "mashrur", 
+                email: "mashrur@example.com", password: "password",
+                              password_confirmation: "password" } }
+    end
+    follow_redirect!
+    assert_template 'chefs/show'
+    assert_not flash.empty?
+  end
+
+Then fill in the create action and private chef_params method:
+
+  def create
+    @chef = Chef.new(chef_params)
+    if @chef.save
+      flash[:success] = "Welcome #{@chef.chefname} to MyRecipes App!"
+      redirect_to chef_path(@chef)
+    else
+      render 'new'
+    end
+  end
+
+  private
+  
+  def chef_params
+    params.require(:chef).permit(:chefname, :email, 
+                                    :password, :password_confirmation)
+  end
+
+To make the tests pass, we will also need a show view, so under app/views/chefs folder create a new file called show.html.erb and fill it in with the title:
+<%= render 'shared/page_title', title: "Your Profile" %>
+
+Also add the show action right below the create action in the chefs controller:
+
+def show
+
+end

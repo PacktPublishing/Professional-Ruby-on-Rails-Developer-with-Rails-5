@@ -1,0 +1,83 @@
+Add admin user functionality - Text lecture
+Section 5, Lecture 128
+First add the admin attribute to chefs table:
+rails generate migration add_admin_to_chefs
+
+add in the line to the change method created in the migration file:
+add_column :chefs, :admin, :boolean, default: false
+
+Save and then run:
+rails db:migrate
+
+Get on rails console and set one of your chefs to admin:
+
+Chef.all
+
+Every user has the admin attribute and it's false
+
+chef = Chef.find_by(email: "pick email of chef you want")
+chef.admin?
+chef.toggle!(:admin)
+
+It'll flip the value from false to true
+
+chef.admin? 
+
+Now it should return true
+
+Give admins all access, edit other usrs recipes, delete other users recipes, delete other users
+
+We start with controllers
+recipes_controller.rb file and the require_same_user method:
+
+def require_same_user
+  if current_chef != @recipe.chef and !current_chef.admin?
+    flash[:danger] = "You can only edit or delete your own recipes"
+    redirect_to recipes_path
+  end  
+end
+
+Update the show.html.erb under recipes where the check for login user happens:
+
+<% if logged_in? && (current_chef == @recipe.chef || current_chef.admin?)
+
+Update the _recipe.html.erb partial under recipes where the check for login user happens as well:
+
+<% if logged_in? && (current_chef == recipe.chef || current_chef.admin?)
+
+Update _navigation.html.erb partial to let the user know they're admin: 
+
+<%= current_chef.chefname.capitalize %>'s Profile 
+                                <%= "Admin" if current_chef.admin? %>
+
+Test out from the browser
+
+Now update the chefs_controller.rb file and the require_same_user method:
+
+if current_chef != @chef and !current_chef.admin?
+
+Then restrict destroy action only to admins
+
+before_action :require_admin, only: [:destroy]
+
+def require_admin
+  if logged_in? & !current_chef.admin?
+  flash[:danger] = "Only admin users can perform that action"
+  redirect_to root_path
+end
+
+Update the chefs listing page
+
+<% if logged_in? and current_chef.admin? && !chef.admin %>
+  <li><%= link_to delete........
+<% end %>
+
+Update the destroy method:
+def destroy
+  if !@chef.admin?
+    @chef.destroy 
+    flash[:danger] = "Chef and all associated recipes have been deleted"
+    redirect_to users_path
+  end
+end
+  

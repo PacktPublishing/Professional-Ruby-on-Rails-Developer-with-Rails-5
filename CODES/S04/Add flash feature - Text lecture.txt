@@ -1,0 +1,21 @@
+Add flash feature - Text lecture
+Section 4, Lecture 88
+Add a call in the application.html.erb file (under app/views/layouts) to render a messages partial
+
+Add this right below the <%= render 'layouts/navigation' %> line in the body:
+<%= render 'layouts/messages' %>
+
+Create a _messages.html.erb partial under app/views/layouts folder and fill it in:
+<div class="row">
+  <div class="col-md-10 col-md-offset-1">
+    <% flash.each do |name, msg| %>
+      <div class="alert alert-<%= name %>">
+        <a href="#" class="close" data-dismiss="alert">×</a>
+        <%= msg %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+Test it out from the web!
+Make a commit of your code

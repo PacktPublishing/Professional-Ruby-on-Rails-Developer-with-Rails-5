@@ -1,0 +1,59 @@
+TDD to build show recipe - Text lecture
+Section 4, Lecture 72
+Add the following test to our recipe integration test:
+
+test "should get recipes show" do
+  get recipe_path(@recipe)
+  assert_template 'recipes/show'
+  assert_match @recipe.name, response.body
+  assert_match @recipe.description, response.body
+  assert_match @chef.chefname, response.body
+end
+
+Add the show route in the config/routes.rb file:
+
+get 'recipes/:id', to: 'recipes#show', as: 'recipe'
+
+Add the show action to the recipes_controller.rb file:
+
+def show
+  @recipe = Recipe.find(params[:id])
+end
+
+Add a show view, so create a file called show.html.erb under the app/views/recipes folder and fill in:
+
+<h1 align="center">Recipe Name: <%= @recipe.name.capitalize %></h1>
+
+<div class="well col-md-8 col-md-offset-2">
+  <h4 class="center description"><strong>Description: </strong></h4>
+  <hr />
+  <%= @recipe.description %>
+  <hr />
+  <div class="pull-right">
+    <p class="center">
+      Created by:
+    </p>
+    <p>
+      <small><%= @recipe.chef.chefname %></small>
+      <div class="pull-right">
+        <%= time_ago_in_words(@recipe.created_at) %> ago
+      </div>
+    </p>
+  </div>
+</div>
+
+In your custom.css.scss file add in some styling for description:
+.description {
+  margin-top: 0;
+}
+
+Update the test for "should get recipes listing" in the recipes_test.rb integration test file:
+test "should get recipes listing" do
+  get recipes_path
+  assert_template 'recipes/index'
+  assert_select "a[href=?]", recipe_path(@recipe), text: @recipe.name
+  assert_select "a[href=?]", recipe_path(@recipe2), text: @recipe2.name
+end
+
+Now update the index.html.erb file under views/recipes folder and turn the line for recipe.name into a link:
+<h4><%= link_to recipe.name, recipe_path(recipe) %></h4>

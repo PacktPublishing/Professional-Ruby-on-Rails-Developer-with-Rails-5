@@ -1,0 +1,83 @@
+Delete recipes and test - Text lecture
+Section 4, Lecture 94
+Update the "should get recipes show" test to look for a button for edit recipe:
+
+test "should get recipes show" do
+  get recipe_path(@recipe)
+  assert_template 'recipes/show'
+  assert_match @recipe.name, response.body
+  assert_match @recipe.description, response.body
+  assert_match @chef.chefname, response.body
+  assert_select 'a[href=?]', edit_recipe_path(@recipe), text: "Edit this recipe"
+  assert_select 'a[href=?]', recipe_path(@recipe), text: "Delete this recipe"
+end
+
+Update the show.html.erb view under app/views/recipes folder and add the following lines at the botton to add the recipe actions:
+<div class="recipe-actions">
+  <%= link_to "Edit this recipe", edit_recipe_path(@recipe), 
+
+                                                class: 'btn btn-xs btn-warning' %>
+  <%= link_to "Delete this recipe", recipe_path(@recipe), method: :delete,
+                                    data: { confirm: "Are you sure you want to delete?" },
+                                    class: "btn btn-xs btn-danger" %>
+</div>  
+
+Add the following class to custom.css.scss file under app/assets/stylesheets folder:
+.recipe-actions {
+  padding-top: 5px;
+  a {
+    color: #fff;
+  }
+}
+
+Create a new test for delete action:
+rails generate integration_test recipes_delete
+
+Pull up the file created in the test/integration folder called recipes_delete_test.rb, then add in the code for the test:
+
+def setup
+  @chef = Chef.create!(chefname: "mashrur", email: "mashrur@example.com")
+  @recipe = Recipe.create(name: "vegetable saute", 
+
+            description: "great vegetable sautee, add vegetable and oil", chef: @chef)
+end
+
+test "successfully delete a recipe" do
+  get recipe_path(@recipe)
+  assert_template 'recipes/show'
+  assert_select 'a[href=?]', recipe_path(@recipe), text: "Delete this recipe"
+  assert_difference 'Recipe.count', -1 do
+    delete recipe_path(@recipe)
+  end
+  assert_redirected_to recipes_path
+  assert_not flash.empty?
+end
+
+Add the destroy action to the recipes_controller.rb file:
+
+def destroy
+  Recipe.find(params[:id]).destroy
+  flash[:success] = "Recipe deleted successfully"
+  redirect_to recipes_path
+end
+
+Test it out to make sure it works then make a commit
+
+Deploy to heroku if you want to test it out in production:
+git push heroku master
+
+Then run all your pending migrations in heroku:
+heroku run rails db:migrate
+
+Now create a test user in heroku, for which you need to run heroku's rails console:
+heroku run rails console
+
+Create a chef there:
+Chef.create(chefname: "put your name", email: "put email that has a gravatar associated")
+
+Check to see that chef got created:
+Chef.all
+
+Test it out from the heroku app link, create a few recipes!
+
+Now post your heroku app link to the Q & A of the prior video lecture (or this one)! Well done!

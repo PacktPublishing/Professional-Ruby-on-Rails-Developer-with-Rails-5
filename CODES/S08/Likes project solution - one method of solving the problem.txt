@@ -1,0 +1,139 @@
+Likes project solution - one method of solving the problem
+Section 8, Lecture 170
+like model will have 1 attribute - like - value of which can be true or false
+
+It will belong to recipe, but also to chef, so that we can track that a chef can like a recipe only once (thus not inflating numbers)
+
+Therefore, we have to generate a likes table, which will have two foreign keys, chef_id and recipe_id of type integers, and a boolean attribute of like:
+rails generate migration create_likes
+
+Fill in the create table block in the migration file:
+  def change
+    create_table :likes do |t|
+      t.boolean :like 
+      t.integer :chef_id
+      t.integer :recipe_id
+      t.timestamps
+    end
+  end
+
+Create a like.rb model file under app/models and fill it in:
+class Like < ApplicationRecord
+  belongs_to :chef
+  belongs_to :recipe
+  
+  validates_uniqueness_of :chef, scope: :recipe
+end
+
+Validates_uniqueness_of :chef, scope: :recipe arranges for a chef to only like/dislike a recipe once. It basically enforces that a chef_id can only be associated with a like and a recipe once.
+
+So a like table can have many entries (rows) of a chef and many entries of recipes, ie the chef can show up many times, but if a like shows up on recipe id 5 for example, and the chef is id 3 in that row, and that recipe id of 5 and chef id of 3 (row) already exists in the like table associated with another like row, then that entry will not be allowed
+
+In the recipe.rb and chef.rb model files add the following line:
+has_many :likes, dependent: :destroy
+
+Now the associations are set up at the database layer, try it out from the console
+
+Let's shift focus to the view layer
+
+We want the ability for chefs to like recipes on the show.html.erb (recipe show page) and the _recipe.html.erb (recipe partial) which is used by a lot of views
+
+Add the following piece of code to the show.html.erb file after the closing div of the recipe-actions and before the comment section:
+<div class="row liking">
+  <div class="row col-md-8 col-md-offset-2">
+    <%= link_to like_recipe_path(@recipe, like: true), method: :post do %>
+      <i class="glyphicon glyphicon-thumbs-up"></i> 
+    <% end %> ||
+    <%= link_to like_recipe_path(@recipe, like: false), method: :post do %>
+      <i class="glyphicon glyphicon-thumbs-down"></i> 
+    <% end %>
+  </div>
+</div>
+
+Once you save it it'll give you an error saying it can't formulate like_recipe_path, we have to create this in the config/routes.rb file, so pull it up and update the resources :recipes section to look like below:
+resources :recipes do
+  resources :comments, only: [:create]
+  member do 
+    post 'like'
+  end
+end
+
+Check rails routes and you'll see the path, now if you refresh the show page for a recipe, you will no longer get the error
+
+If you hover over the thumbs up and thumbs down on the screen, you'll see the link showing at the bottom that ends in something like recipes/17/like?like=true for the thumbs up and recipes/17/like?like=false for the thumbs down. This was created (other than the recipe id) by the path we gave the view, check it out above
+
+Now we have to use this in the recipes controller to create the like, so go to the recipes controller and add a like action:
+
+def like
+  like = Like.create(like: params[:like], chef: current_chef, recipe: @recipe)
+  if like.valid?
+    flash[:success] = "Your selection was succesful"
+    redirect_to :back
+  else
+    flash[:danger] = "You can only like/dislike a recipe once"
+    redirect_to :back
+  end
+end
+
+You have to arrange for this option to be visible to users who are not logged in, but if they try to click it, it'll give an error saying you need to be logged in to perform that action, so you'll need to arrange the before actions as below:
+
+before_action :set_recipe, only: [:show, :edit, :update, :destroy, :like]
+before_action :require_user, except: [:index, :show, :like]
+
+Our current require_user methods redirects_to root_path if not logged in, we don't want that, we want the user to be in that same page so we add :like above to the exception list for require_user but we will add a custom require_user_like method instead and call it as a before action:
+before_action :require_user_like, only: [:like]
+
+Then under private, add in the require_user_like method:
+def require_user_like
+  if !logged_in?
+    flash[:danger] = "You must be logged in to perform that action"
+    redirect_to :back
+  end
+end
+
+Test it out as a regular user who is not logged in, it'll give you the flash message but keep you on that page
+
+Now test it out as a logged in user and see if the selection is successful, try out a couple other recipes as well, try liking a recipe twice and see if you get an error message.
+
+Well done so far!
+
+Now we have to add the following two methods to our recipe.rb model file in order to count the number of likes and dislikes (or thumbs up and thumbs downs), add this after you have all the has_manys etc but above the last end:
+
+def thumbs_up_total
+  self.likes.where(like: true).size
+end
+
+def thumbs_down_total
+  self.likes.where(like: false).size    
+end
+
+Now we have to display this on the show page, so update the show.html.erb view for recipes:
+<div class="row">
+  <div class="row col-md-8 col-md-offset-2">
+    <%= link_to like_recipe_path(@recipe, like: true), method: :post do %>
+      <i class="glyphicon glyphicon-thumbs-up"></i> 
+    <% end %> <%= @recipe.thumbs_up_total %> || 
+    <%= link_to like_recipe_path(@recipe, like: false), method: :post do %>
+      <i class="glyphicon glyphicon-thumbs-down"></i>
+    <% end %> <%= @recipe.thumbs_down_total %>
+  </div>
+</div>
+
+To add this to the _recipe.html.erb for all the index views, add the code below right after the <% end %> for recipe-actions section (not the last <% end %> in the page), this is different from the above code for show.html.erb:
+<div class="row">
+  <div class="pull-right liking">
+    <%= link_to like_recipe_path(recipe, like: true), method: :post do %>
+      <i class="glyphicon glyphicon-thumbs-up"></i> 
+    <% end %> <%= recipe.thumbs_up_total %> || 
+    <%= link_to like_recipe_path(recipe, like: false), method: :post do %>
+      <i class="glyphicon glyphicon-thumbs-down"></i>
+    <% end %> <%= recipe.thumbs_down_total %>
+  </div>
+</div>
+
+Add the following style to custom.css.scss:
+.liking {
+  padding-right: 10px;
+}
+
+Test it out!

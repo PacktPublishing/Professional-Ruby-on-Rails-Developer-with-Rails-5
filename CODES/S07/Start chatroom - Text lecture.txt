@@ -1,0 +1,69 @@
+Start chatroom - Text lecture
+Section 7, Lecture 158
+Create a route in config/routes.rb file for chat_path:
+get '/chat', to: 'chatrooms#show'
+
+Create a chatrooms_controller.rb file and fill it in:
+class ChatroomsController < ApplicationController
+  
+  def show
+    @message = Message.new
+    @messages = Message.all
+  end
+  
+end
+
+Then under app/views folder create a chatrooms folder, under it create a show.html.erb view:
+<%= render 'shared/page_title', title: "ChefChat" %>
+
+<div class="row chat-container">
+  <div class="col-md-8 center-block">
+    <div class="messages" id="messages">
+      Hello
+    </div>
+  </div>
+  <div class="message-container">
+    
+  </div>
+</div>
+
+Add a link in the _navigation.html.erb partial to go to this page (should be in if logged_in? block):
+<li><%= link_to "ChefChat", chat_path %></li>
+
+Generate a migration to create messages table:
+rails generate migration create_messages
+
+Fill in the attributes in the migration file that's generated:
+def change
+  create_table :messages do |t|
+    t.text :content
+    t.integer :chef_id
+    t.timestamps
+  end
+end
+
+Run:
+rails db:migrate to create the table
+
+Add a message.rb model file under app/models and fill it in:
+class Message < ApplicationRecord
+  belongs_to :chef
+  validates :content, presence: true
+  validates :chef_id, presence: true
+end
+
+Add the following has_many in chef.rb model:
+has_many :messages, dependent: :destroy
+
+Create a messages_controller.rb file and fill it in:
+class MessagesController < ApplicationController
+  def create
+    
+  end
+  
+  private
+  
+  def message_params
+
+  end
+end

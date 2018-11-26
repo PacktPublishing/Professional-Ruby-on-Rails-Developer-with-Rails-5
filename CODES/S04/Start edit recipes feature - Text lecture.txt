@@ -1,0 +1,110 @@
+Start edit recipes feature - Text lecture
+Section 4, Lecture 90
+Generate an integration test for edit recipe feature:
+
+rails generate integration_test recipes_edit
+
+Add in the following actions to the recipes_controller.rb file for edit and update (make sure not to put them under private):
+
+def edit
+  @recipe = Recipe.find(params[:id])
+end
+
+def update
+  @recipe = Recipe.find(params[:id])
+  if @recipe.update(recipe_params)
+    # handle this
+  else
+    render 'edit'
+  end
+end
+
+Add in the test for reject invalid recipe update to the recipes_edit_test.rb file, you will also need to add a setup method on top:
+
+def setup
+  @chef = Chef.create!(chefname: "mashrur", 
+
+                                       email: "mashrur@example.com")
+  @recipe = Recipe.create(name: "vegetable saute", 
+
+                                         description: "great vegetable sautee, 
+                                             add vegetable and oil", chef: @chef)
+end
+
+test "reject invalid recipe update" do
+  get edit_recipe_path(@recipe)
+  assert_template 'recipes/edit'
+  patch recipe_path(@recipe), params: { recipe: { name: " ", 
+
+                                               description: "some description" } } 
+  assert_template 'recipes/edit'
+  assert_select 'h2.panel-title'
+  assert_select 'div.panel-body'
+end
+
+To run a specific test type in rails test and then the path for it:
+rails test test/integration/recipes_edit_test.rb
+
+Add in a view for edit by creating a file named edit.html.erb under app/views/recipes folder:
+<%= render 'shared/page_title', title: "edit an existing recipe" %>
+<% if @recipe.errors.any? %>
+  <div class="row">
+    <div class="col-md-8 col-md-offset-2">
+      <div class="panel panel-danger">
+        <div class="panel-heading">
+          <h2 class="panel-title">
+            <%= pluralize(@recipe.errors.count, "error") %>
+            prohibited this <%= @recipe.class %> from being saved:
+          </h2>
+          <div class="panel-body">
+            <ul>
+              <% @recipe.errors.full_messages.each do |msg| %>
+                <li><%= msg %></li>
+              <% end %>
+            </ul>
+          </div>
+        </div>  
+      </div>
+    </div>
+  </div>
+<% end %>
+<div class="row">
+  <div class="col-md-12">
+    <%= form_for(@recipe, :html => {class: "form-horizontal", 
+
+                                                                 role: "form"}) do |f| %>
+      <div class="form-group">
+        <div class="control-label col-md-2">
+          <%= f.label :name %>
+        </div>
+        <div class="col-md-8">
+          <%= f.text_field :name, class: "form-control", 
+
+                                 placeholder: "Name of recipe", autofocus: true %>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="control-label col-md-2">
+          <%= f.label :description %>
+        </div>
+        <div class="col-md-8">
+          <%= f.text_area :description, rows: 10, class: "form-control", 
+
+                                 placeholder: "Enter steps to create recipe" %>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+          <%= f.submit class: "btn btn-primary btn-lg btn-xlarge" %>
+        </div>
+      </div>
+    <% end %>
+    <div class="col-md-4 col-md-offset-4 colormatch">
+      [ <%= link_to "Cancel request and return to recipes listing", 
+
+                                                                      recipes_path %> ]
+    </div>
+  </div>
+</div>
+
+We will complete the update action in the next video

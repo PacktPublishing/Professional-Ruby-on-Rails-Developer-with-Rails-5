@@ -1,0 +1,123 @@
+Cleaning up layout of app - Text lecture
+Section 5, Lecture 122
+First go to home action in pages_controller.rb file and update it:
+
+def home
+  redirect_to recipes_path if logged_in?
+end
+
+Update the recipes_controller.rb create action to assign current_chef as creator of recipes:
+  def create
+    @recipe = Recipe.new(recipe_params)
+    @recipe.chef = current_chef
+    if @recipe.save
+      flash[:success] = "Recipe was created successfully!"
+      redirect_to recipe_path(@recipe)
+    else
+      render 'new'
+    end
+  end
+
+Login upon sign-up:
+
+In your create action for chefs_controller.rb file add the following line after @chef.save:
+if @chef.save
+  session[:chef_id] = @chef.id
+
+This will log in a user who just signed up successfully
+
+Create the set_chef method in the chefs_controller.rb file under private (at the bottom):
+
+def set_chef
+  @chef = Chef.find(params[:id])
+end
+
+Now add the before_action to the top of the chefs_controller:
+before_action :set_chef, only: [:show, :edit, :update, :destroy]
+
+Then remove this line @chef = Chef.find(params[:id]) from the show, edit, update and destroy actions
+
+Update the navigation partial with restrictions, my completed one looks like below:
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" 
+      data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" 
+                                                aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <%= link_to "MyRecipes", root_path, class: "navbar-brand", id: "logo" %>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li><%= link_to "Chefs", chefs_path %></li>
+        <li><%= link_to "All Recipes", recipes_path %></li>
+        <% if logged_in? %>
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" 
+              role="button" aria-haspopup="true" aria-expanded="false">
+                                  Recipes <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><%= link_to "Create a new recipe", new_recipe_path %></li>
+              <li><a href="#">Another action</a></li>
+              <li><a href="#">Something else here</a></li>
+              <li role="separator" class="divider"></li>
+              <li><a href="#">Separated link</a></li>
+              <li role="separator" class="divider"></li>
+              <li><a href="#">One more separated link</a></li>
+            </ul>
+          </li>
+        <% end %>
+      </ul>
+      <form class="navbar-form navbar-left">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search">
+        </div>
+        <button type="submit" class="btn btn-default">Submit</button>
+      </form>
+      <ul class="nav navbar-nav navbar-right">
+        <% if logged_in? %>
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" 
+            role="button" aria-haspopup="true" aria-expanded="false">
+            <%= current_chef.chefname.capitalize %>'s Profile 
+            <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><%= link_to "View your profile", 
+                                chef_path(current_chef) %></li>
+              <li><%= link_to "Edit your profile", 
+                                edit_chef_path(current_chef) %></li>
+              <li><a href="#">Something else here</a></li>
+              <li role="separator" class="divider"></li>
+              <li><%= link_to "Log out", logout_path, 
+                                      method: :delete %></li>
+            </ul>
+          </li>
+        <% else %>
+          <li><%= link_to "Log in", login_path %></li>  
+        <% end %>
+      </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+
+Update the show.html.erb (towards the bottom) under view/recipes folder to only show the actions if chef is logged in and logged in chef is the creator of the recipe:
+
+<div class="recipe-actions">
+  <% if logged_in? %>
+    <%= link_to "Edit this recipe", edit_recipe_path(@recipe), 
+                              class: "btn btn-xs btn-warning" %>
+    <%= link_to "Delete this recipe", recipe_path(@recipe), 
+                        method: :delete,
+      data: { confirm: "Are you sure you want to delete this recipe?" },
+                                      class: "btn btn-xs btn-danger" %>
+  <% end %>                                  
+  <%= link_to "Return to recipes listing", recipes_path, 
+                                class: "btn btn-xs btn-primary" %>
+</div>

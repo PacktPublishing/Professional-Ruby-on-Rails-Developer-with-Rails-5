@@ -1,0 +1,5 @@
+Learn/Practice HTML and CSS - Text lecture
+Section 3, Lecture 47
+Practice HTML and CSS using the following site:
+
+learn.shayhowe.com/html-css/

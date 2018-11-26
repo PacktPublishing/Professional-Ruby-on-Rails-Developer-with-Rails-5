@@ -1,0 +1,115 @@
+Complete ingredients - Text lecture
+Section 6, Lecture 143
+First create the new.html.erb and edit.html.erb files under 
+app/views/ingredients folder, new.html.erb:
+<%= render 'shared/page_title', title: "enter a new ingredient" %>
+
+<%= render 'form' %>
+
+edit.html.erb:
+<%= render 'shared/page_title', title: "Edit ingredient name" %>
+
+<%= render 'form' %>
+
+Create a _form.html.erb in the same folder:
+<%= render 'shared/errors', obj: @ingredient %>
+
+<div class="row">
+  <div class="col-md-12">
+    <%= form_for(@ingredient, :html => {class: "form-horizontal", 
+                                        role: "form"}) do |f| %>
+      <div class="form-group">
+        <div class="control-label col-md-2">
+          <%= f.label :name %>
+        </div>
+        <div class="col-md-8">
+          <%= f.text_field :name, class: "form-control", 
+              placeholder: "Enter ingredient", autofocus: true %>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+<%= f.submit(@ingredient.new_record? ? "Add Ingredient" : "Update Ingredient",
+                          class: "btn btn-primary btn-lg btn-xlarge") %>
+        </div>
+      </div>
+    <% end %>
+    <div class="col-md-4 col-md-offset-4 colormatch">
+      [ <%= link_to "Cancel request and return to recipes listing", 
+                                              recipes_path %> ]
+    </div>
+  </div>
+</div>
+
+Ensure it shows up
+
+Update the index.html.erb view in the app/views/ingredients folder and fix the edit_ingredient path:
+<% if logged_in? && current_chef.admin? %>
+  <li><%= link_to "Edit this ingredient", edit_ingredient_path(ing) %></li>
+<% end %>
+
+Update the _navigation.html.erb partial to restrict the new ingredient creation to admins:
+<% if logged_in? && current_chef.admin? %>
+  <li role="separator" class="divider"></li>
+  <li><%= link_to "New Ingredient", new_ingredient_path %></li>
+<% end %>
+
+Update the ingredients_controller.rb file:
+class IngredientsController < ApplicationController
+  before_action :set_ingredient, only: [:edit, :update, :show]
+  before_action :require_admin, except: [:show, :index]
+  
+  def new
+    @ingredient = Ingredient.new
+  end
+  
+  def create
+    @ingredient = Ingredient.new(ingredient_params)
+    if @ingredient.save
+      flash[:success] = "Ingredient was successfully created"
+      redirect_to ingredient_path(@ingredient)
+    else
+      render 'new'
+    end
+  end
+  
+  def edit
+    
+  end
+  
+  def update
+    if @ingredient.update(ingredient_params)
+      flash[:success] = "Ingredient name was updated successfully"
+      redirect_to @ingredient
+    else
+      render 'edit'
+    end
+  end
+  
+  def show
+    @ingredient_recipes = @ingredient.recipes.paginate(page: params[:page], 
+                                                            per_page: 5)
+  end
+  
+  def index
+    @ingredients = Ingredient.paginate(page: params[:page], per_page: 5)
+  end
+  
+  private
+  
+  def ingredient_params
+    params.require(:ingredient).permit(:name)
+  end
+  
+  def set_ingredient
+    @ingredient = Ingredient.find(params[:id])
+  end
+  
+  def require_admin
+    if !logged_in? || (logged_in? and !current_chef.admin?)
+      flash[:danger] = "Only admin users can perform that action"
+      redirect_to ingredients_path
+    end
+  end
+  
+end

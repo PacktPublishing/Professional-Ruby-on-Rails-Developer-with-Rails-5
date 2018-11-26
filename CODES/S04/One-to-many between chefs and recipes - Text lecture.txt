@@ -1,0 +1,35 @@
+One-to-many between chefs and recipes - Text lecture
+Section 4, Lecture 65
+Create a new migration file by issuing the following command:
+
+rails generate migration add_chef_id_to_recipes
+
+Pull up the new migration file that is created and fill in within the change method:
+
+add_column :recipes, :chef_id, :integer
+
+Run the migration: rails db:migrate
+
+Test it out in the console
+
+Pull up the chef.rb model file and add in the following line:
+has_many :recipes
+
+Pull up the recipe.rb model file and add in the following line:
+belongs_to :chef
+
+Refer to the video to look for methods, getters setters etc that are available now with this association and how they are used for both chefs and recipes
+
+Update the recipe_test.rb file under test/models folder, change the setup method to look like below and also add a new test that checks for chef_id:
+def setup
+  @chef = Chef.create!(chefname: "mashrur", email: "mashrur@example.com")
+  @recipe = @chef.recipes.build(name: "vegetable", description: "great vegetable recipe")  
+end
+
+test "recipe without chef should be invalid" do
+  @recipe.chef_id = nil
+  assert_not @recipe.valid?
+end
+
+Add the validation to your recipe.rb model file:
+validates :chef_id, presence: true

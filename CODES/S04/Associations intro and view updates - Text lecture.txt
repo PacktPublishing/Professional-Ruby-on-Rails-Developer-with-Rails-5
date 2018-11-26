@@ -1,0 +1,9 @@
+Associations intro and view updates - Text lecture
+Section 4, Lecture 53
+You can find the footer code in the github repo of the app:
+github.com/proror5railsudemy/myrecipes
+
+Complete the SQL tutorial upto SQL Delete in the w3schools SQL portion:
+www.w3schools.com/sql
+
+Read about ActiveRecord associations in guides.rubyonrails.org

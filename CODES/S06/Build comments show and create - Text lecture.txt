@@ -1,0 +1,56 @@
+Build comments show and create - Text lecture
+Section 6, Lecture 147
+Update the show.html.erb view under app/views/recipes folder to include a listing of comments at the bottom:
+<% if @recipe.comments != 0 %>
+  <div class="row">
+    <div class="col-md-8 col-md-offset-2">
+      <h3>Prior Comments: </h3>
+        <div id="messages">
+          <%= render partial: 'comments/comments', object: @comments %>
+        </div>
+    </div>
+  </div>
+<% else %>
+  <div class="row">
+    <div class="col-md-8 col-md-offset-2">
+      <h3>No Comments Yet!</h3>
+    </div>
+  </div>
+<% end %>
+
+Update the show action in the recipes_controller.rb file and create an @comment instance variable:
+
+  def show
+    @comments = @recipe.comments.paginate(page: params[:page], 
+                                                per_page: 5)
+  end
+
+Now create a comments folder under app/views folder and create two partials _comments.html.erb and _comment.html.erb
+
+_comments.html.erb:
+<div align="center">
+  <%= will_paginate comments %>
+</div>
+<% comments.each do |comment| %>
+  <%= render(partial: 'comments/comment', object: comment) %>
+<% end %>
+<div align="center">
+  <%= will_paginate comments %>
+</div>
+
+_comment.html.erb:
+<div class="row">
+  <div class="col-md-2">
+    <section class="chef_info center">
+      <%= gravatar_for(comment.chef, size: 60) %>
+    </section>
+  </div>
+  <div class="col-md-8 well">
+    <p><%= comment.description %></p>
+    <p>
+      <span class="quiet"><small>Created: 
+                          <%= time_ago_in_words(comment.created_at) %> ago by 
+                          <%= comment.chef.chefname %></small></span>
+    </p>
+  </div>
+</div>

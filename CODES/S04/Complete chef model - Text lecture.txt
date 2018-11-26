@@ -1,0 +1,14 @@
+Complete chef model - Text lecture
+Section 4, Lecture 63
+Add the following line immediately after the chef class declaration in the chef.rb model file:
+
+before_save { self.email = email.downcase }
+
+Add the following test to the chef model test:
+
+test "email should be lower case before hitting db" do
+  mixed_email = "JohN@ExampLe.com"
+  @chef.email = mixed_email
+  @chef.save
+  assert_equal mixed_email.downcase, @chef.reload.email 
+end

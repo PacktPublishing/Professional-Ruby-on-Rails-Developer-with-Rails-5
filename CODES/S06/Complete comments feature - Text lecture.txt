@@ -1,0 +1,96 @@
+Complete comments feature - Text lecture
+Section 6, Lecture 149
+Update the _recipe.html.erb partial and add in the portion to display comments:
+<p>
+  <span class="quiet"><small>Created 
+            <%= time_ago_in_words(recipe.created_at) %> ago by 
+                      <%= recipe.chef.chefname.capitalize %> | 
+              <%= pluralize(recipe.comments.count, 'Comment') %>
+        </small></span>
+</p> 
+
+Add a route for nested comments within recipes route (update the existing recipes route line) in the config/routes.rb file:
+  resources :recipes do
+    resources :comments, only: [:create]
+  end
+
+Add the form section to the show.html.erb page under app/views/recipes folder:
+<% if logged_in? %>
+  <div class="row">
+    <div class="col-md-8 col-md-offset-2">
+      <h3>Comments: </h3>
+      <hr />
+      <%= form_for([@recipe, @comment], :html => {class: "form-horizontal", 
+                                                role: "form"}) do |f| %>
+        <div class="form-group">
+          <div class="control-label col-md-2">
+            <%= f.label :description, "Comment" %>
+          </div>
+          <div class="col-md-8">
+            <%= f.text_area :description, rows: 8, class: "form-control", 
+                                      placeholder: "Enter Comment Here" %>
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="col-md-offset-2 col-md-10">
+            <%= f.submit "Submit Comment", 
+                              class: "btn btn-primary btn-lg btn-xlarge" %>
+          </div>
+        </div>
+      <% end %>
+      <hr />
+    </div>
+  </div>
+<% end %>
+
+Create a comments_controller.rb file and fill it in:
+class CommentsController < ApplicationController
+  before_action :require_user
+  
+  def create
+    @recipe = Recipe.find(params[:recipe_id])
+    @comment = @recipe.comments.build(comment_params)
+    @comment.chef = current_chef
+    if @comment.save
+      flash[:success] = "Comment was created successfully"
+      redirect_to recipe_path(@recipe)
+    else
+      flash[:danger] = "Comment was not created"
+      redirect_to :back
+    end
+  end
+  
+  private
+  
+  def comment_params
+    params.require(:comment).permit(:description)
+  end
+  
+end
+
+Update the recipes_controller show action:
+  def show
+    @comment = Comment.new
+    @comments = @recipe.comments.paginate(page: params[:page], per_page: 5)
+  end
+
+Test it out by creating comments through the browser
+
+Do a commit and push:
+git add -A
+git commit -m "Complete comments feature"
+git push
+
+Now deploy to production:
+git push heroku master
+
+Now run migrations in heroku:
+heroku run rails db:migrate
+
+Now test out your heroku app link
+
+Don't forget to post your heroku app link to the Q & A, and share the link with friends & family also in a blog post if you have a blog
+
+Congratulations on having completed the section!
+
+Prep for next section: Read a few paragraphs on websockets

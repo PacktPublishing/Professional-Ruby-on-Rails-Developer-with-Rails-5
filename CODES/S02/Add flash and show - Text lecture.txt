@@ -1,0 +1,34 @@
+Add flash and show - Text lecture
+Section 2, Lecture 30
+Update the create action and add the following line below @todo.save
+flash[:notice] = "Todo was created successfully"
+
+In your views/layouts/application.html.erb you have to now display the flash, add the following code right under your opening <body> tag and above the yield:
+<% flash.each do |name, msg| %>
+<ul>
+<li><%= msg %></li>
+</ul>
+<% end %>
+
+In the todos_controller.rb file add the show action
+
+def show
+  @todo = Todo.find(params[:id])
+end
+
+In your views/todos folder create a view for show by creating a file named show.html.erb:
+
+<h1>Showing a todo</h1>
+
+<p>
+name: <%= @todo.name %>
+</p>
+<p>
+description: <%= @todo.description %>
+</p>
+
+Homework:
+
+Read up about git and version control with git:
+1) Youtube video
+2) https://git-scm.com/book

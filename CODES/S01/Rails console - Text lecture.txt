@@ -1,0 +1,50 @@
+Rails console - Text lecture
+Section 1, Lecture 21
+First create a todo model. Under app/models folder create a file called todo.rb and fill it in:
+
+class Todo < ApplicationRecord
+  
+end
+
+Assignment: What is a primary key? Paste your answer to the Q & A of the prior video lecture
+
+To start the rails console, type in rails console from your rails app directory (mine is todoapp)
+
+To create a new in memory todo object:
+todo = Todo.new(name: "some name", description: "some description")
+
+To save this in memory todo object to persistent memory (database table):
+todo.save
+
+To view all todos:
+Todo.all
+
+To create and save a todo object to the database directly:
+todo = Todo.create(name: "some new name", description: "some new description")
+
+To find a specific todo you can use the find method for number:
+todo = Todo.find(1) # this will only work if todo with id 1 exists in the table
+
+To find a specific todo by name you can use find_by method
+
+In the video the word database is used quite often to refer to the todos table, that's because our database comprises of only 1 table which is todos. Technically it should be referred to as todos table instead of database, but in this case it's ok. When there are multiple tables, the table in question should be mentioned by name.
+
+To grab the first todo in any table you can use the .first method
+To grab the last todo in any table you can use the .last method
+Example: todo3 = Todo.last 
+
+To update a todo, first find and reference it via a variable:
+some_todo = Todo.first # I'm using .first method to get the first todo in the table
+
+Then you can update any attribute you want, Rails provides you getters and setters for the attributes (columns):
+some_todo.description = "this is a new description"
+
+Then you can save this:
+some_todo.save
+
+To delete a todo, first grab the todo you want to delete via any methods mentioned above, then run the .destroy method:
+some_other_todo.destroy
+
+Homework: Read about ActiveRecord basics, migrations and validations as homework assignment prior to next lecture -> guides.rubyonrails.org
+
+Good luck!

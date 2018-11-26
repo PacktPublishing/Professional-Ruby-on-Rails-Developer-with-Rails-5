@@ -1,0 +1,58 @@
+Complete comments upgrade - Text lecture
+Section 7, Lecture 154
+Update the chefs_controller.rb file create action to set cookies.signed:
+  def create
+    @chef = Chef.new(chef_params)
+    if @chef.save
+      session[:chef_id] = @chef.id
+      cookies.signed[:chef_id] = @chef.id #this was incorrectly done in the video
+      flash[:success] = "Welcome #{@chef.chefname} to MyRecipes App!"
+      redirect_to chef_path(@chef)
+    else
+      render 'new'
+    end
+  end
+
+Update the comments controller create action:
+  def create
+    @recipe = Recipe.find(params[:recipe_id])
+    @comment = @recipe.comments.build(comment_params)
+    @comment.chef = current_chef
+    if @comment.save
+      ActionCable.server.broadcast "comments", 
+                  render(partial: 'comments/comment', object: @comment)
+      # flash[:success] = "Comment was created successfully"
+      # redirect_to recipe_path(@recipe)
+    else
+      flash[:danger] = "Comment was not created"
+      redirect_to :back
+    end
+  end
+
+Generate a comments channel:
+rails generate channel comments
+
+Then go to app/channels/comments_channel.rb file and fill it in:
+class CommentsChannel < ApplicationCable::Channel
+  def subscribed
+    stream_from "comments"
+  end
+
+  def unsubscribed
+    # Any cleanup needed when channel is unsubscribed
+  end
+end
+
+In your show.html.erb page under app/views/recipes folder where you render the comments partial, ensure you have a <div id="comments"> wrapping it
+<div id="messages">
+  <%= render partial: 'comments/comments', object: @comments %>
+</div>
+
+Update the app/assets/javascripts/channels/comments.coffee file received function:
+received: (data) ->
+  $("#messages").prepend(data)
+
+If using cloud9 IDE, add this to the config/environments/development.rb file at the end before the last end:
+config.action_cable.disable_request_forgery_protection = true
+
+Do a commit and test it out!

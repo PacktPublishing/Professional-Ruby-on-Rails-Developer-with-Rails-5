@@ -1,0 +1,92 @@
+Add signup form - Text lecture
+Section 5, Lecture 102
+First generate an integration test for users_signup:
+rails generate integration_test chefs_signup
+
+Then pull up the chefs_signup_test.rb file created under test/integration folder and add the test:
+test "should get signup path" do
+  get signup_path
+  assert_response :success
+end
+
+Add in the signup route to the config/routes.rb file:
+get '/signup', to: 'chefs#new'
+resources :chefs, except: [:new]
+
+Create a chefs controller and within it a new action, under app/controllers folder, create a file named chefs_controller.rb and fill it in:
+
+class ChefsController < ApplicationController
+  
+  def new
+    @chef = Chef.new
+  end
+
+end
+
+Under app/views folder create a new folder called chefs and within it create a file called new.html.erb and fill it in:
+<%= render 'shared/page_title', title: "Sign up for the application" %>
+
+<%= render 'shared/errors', obj: @chef %>
+
+<div class="row">
+  <div class="col-md-12">
+    <%= form_for(@chef, :html => {class: "form-horizontal", 
+
+                                                           role: "form"}) do |f| %>
+      <div class="form-group">
+        <div class="control-label col-md-2">
+          <%= f.label :chefname, "Choose Chefname" %>
+        </div>
+        <div class="col-md-8">
+          <%= f.text_field :chefname, class: "form-control", 
+                          placeholder: "Enter your name", autofocus: true %>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="control-label col-md-2">
+          <%= f.label :email %>
+        </div>
+        <div class="col-md-8">
+          <%= f.email_field :email, class: "form-control", 
+                                               placeholder: "Enter your email" %>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="control-label col-md-2">
+          <%= f.label :password %>
+        </div>
+        <div class="col-md-8">
+          <%= f.password_field :password, class: "form-control", 
+                                            placeholder: "Choose a password" %>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="control-label col-md-2">
+          <%= f.label :password_confirmation, "Confirm Password" %>
+        </div>
+        <div class="col-md-8">
+          <%= f.password_field :password_confirmation, 
+
+                                                   class: "form-control", 
+                                                  placeholder: "Confirm password" %>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+          <%= f.submit "Create my account", 
+
+                                        class: "btn btn-primary btn-lg btn-xlarge" %>
+        </div>
+      </div>
+    <% end %>
+    <div class="col-md-4 col-md-offset-4 colormatch">
+      [ <%= link_to "Cancel request and return to recipes listing", 
+
+                                                                       recipes_path %> ]
+    </div>
+  </div>
+</div>
+
+Pull up the home.html.erb under app/views/pages to update the button to link to this new form you can find this button right below the the <h2>The best recipe sharing app!</h2>:
+<p><%= link_to "Sign up for the app", signup_path, 
+                                  class: "btn btn-danger btn-lg btn-xlarge" %></p>

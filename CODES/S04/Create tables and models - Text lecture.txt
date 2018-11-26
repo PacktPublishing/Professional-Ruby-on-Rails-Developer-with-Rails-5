@@ -1,0 +1,35 @@
+Create tables and models - Text lecture
+Section 4, Lecture 57
+to generate a migration file for recipes:
+rails generate migration create_recipes
+
+Then open the migration file and fill in within the create_table :recipes method
+t.string :name
+t.text :description
+t.timestamps
+
+run the migration to create the table:
+rails db:migrate
+
+create a new file called recipe.rb under app/models folder (for the recipe model) and fill it in:
+class Recipe < ApplicationRecord
+
+end
+
+Test it out in the rails console
+
+to generate a migration file for chefs:
+rails generate migration create_chefs
+
+Then open the migration file and fill in within the create_table :chefs method
+t.string :chefname
+t.string :email
+t.timestamps
+
+run the migration to create the table:
+rails db:migrate
+
+create a new file called chef.rb under app/models folder (for the chef model) and fill it in:
+class Chef < ApplicationRecord
+
+end

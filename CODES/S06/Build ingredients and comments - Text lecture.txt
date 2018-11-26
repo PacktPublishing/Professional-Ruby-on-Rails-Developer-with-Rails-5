@@ -1,0 +1,40 @@
+Build ingredients and comments - Text lecture
+Section 6, Lecture 135
+Add a migration:
+rails generate migration create_ingredients
+
+Add the following attribute in the migration file:
+t.string :name
+
+Then run:
+rails db:migrate
+
+Create an ingredient.rb model file and fill it in with validations and association:
+class Ingredient < ApplicationRecord
+  validates :name, presence: true, length: { minimum: 3, maximum: 25 }
+  validates_uniqueness_of :name
+  has_many :recipe_ingredients
+  has_many :recipes, through: :recipe_ingredients
+end
+
+Create a new migration to create_recipe_ingredients table:
+rails generate migration create_recipe_ingredients
+
+Add in the following attributes:
+t.integer :recipe_id
+t.integer :ingredient_id
+
+Run the migration:
+rails db:migrate
+
+Create a new model recipe_ingredient.rb under app/models directory:
+class RecipeIngredient < ApplicationRecord
+  belongs_to :ingredient 
+  belongs_to :recipe
+end
+
+Add the following two lines to the recipe.rb model file to complete the association:
+  has_many :recipe_ingredients
+  has_many :ingredients, through: :recipe_ingredients
+
+Test the association out from the rails console

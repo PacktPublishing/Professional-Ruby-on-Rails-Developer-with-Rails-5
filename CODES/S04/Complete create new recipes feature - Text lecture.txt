@@ -1,0 +1,44 @@
+Complete create new recipes feature - Text lecture
+Section 4, Lecture 86
+Add the error portion of the code to the top (right below title) of the new.html.erb:
+
+<% if @recipe.errors.any? %>
+  <div class="row">
+    <div class="col-md-8 col-md-offset-2">
+      <div class="panel panel-danger">
+        <div class="panel-heading">
+          <h2 class="panel-title">
+            <%= pluralize(@recipe.errors.count, "error") %>
+            prohibited this <%= @recipe.class %> from being saved:
+          </h2>
+          <div class="panel-body">
+            <ul>
+              <% @recipe.errors.full_messages.each do |msg| %>
+                <li><%= msg %></li>
+              <% end %>
+            </ul>
+          </div>
+        </div>  
+      </div>
+    </div>
+  </div>
+<% end %>
+
+Ensure all tests pass at this point. Then add the test for "create new valid recipe" in recipes_test.rb file in the test/integration folder:
+
+test "create new valid recipe" do
+  get new_recipe_path
+  assert_template 'recipes/new'
+  name_of_recipe = "chicken saute"
+  description_of_recipe = "add chicken, add vegetables, 
+
+                     cook for 20 minutes, serve delicious meal"
+  assert_difference 'Recipe.count', 1 do
+    post recipes_path, params: { recipe: { name: name_of_recipe, 
+
+                                                   description: description_of_recipe}}
+  end
+  follow_redirect!
+  assert_match name_of_recipe.capitalize, response.body
+  assert_match description_of_recipe, response.body
+end

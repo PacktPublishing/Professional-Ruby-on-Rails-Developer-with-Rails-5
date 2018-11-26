@@ -1,0 +1,27 @@
+Build comment model - Text lecture
+Section 6, Lecture 137
+Create the migration for comments table:
+rails generate migration create_comments
+
+Fill in the migration file:
+t.text :description
+t.integer :chef_id
+t.integer :recipe_id
+
+Run the migration file:
+rails db:migrate
+
+Then create a comment.rb model file and fill it in:
+class Comment < ApplicationRecord
+  validates :description, presence: true, length: { minimum: 4, maximum: 140 }
+  belongs_to :chef
+  belongs_to :recipe 
+  validates :chef_id, presence: true
+  validates :recipe_id, presence: true
+  default_scope -> { order(updated_at: :desc)}
+end
+
+Add the following line in both the chef.rb and recipe.rb model files:
+has_many :comments, dependent: :destroy
+
+Test out the feature from the console

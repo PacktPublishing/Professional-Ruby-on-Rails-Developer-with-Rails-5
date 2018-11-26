@@ -1,0 +1,44 @@
+Deploy to heroku - Text lecture
+Section 7, Lecture 156
+To deploy to production in heroku with real-time features you will need a verified heroku account which means having a credit card on file with them (no charge). Please go to https://heroku.com/verify and add in a credit card to your free account to turn it into a verified account, they won't charge anything unless you add paid features
+
+Then add the redis add-on:
+heroku addons:create heroku-redis:hobby-dev -a name_of_YOUR_heroku_app 
+
+Then run:
+heroku restart
+
+If you want to see your REDIS_URL you can type in:
+heroku config:get REDIS_URL
+
+However we will not use this physically anywhere, we will refer to this as ENV["REDIS_URL"] for security
+
+Go to config/cable.yml file and update production url to look like below:
+url: <%= ENV["REDIS_URL"] %>
+
+Go to config/environments/production.rb and scroll all the way to the bottom above the last end, add the following lines:
+config.web_socket_server_url = "wss://mashrur-myrecipes.herokuapp.com/cable"
+config.action_cable.allowed_request_origins = ['https://mashrur-myrecipes.herokuapp.com', 'http://mashrur-myrecipes.herokuapp.com']
+
+***Make sure there are no separate lines in the statement above
+Now open the gemfile and add the following gem to group :production:
+gem 'redis'
+
+Run: 
+bundle install --without production
+
+Create a file called redis.rb under config/initializers folder and fill it in:
+$redis = Redis.new(url: ENV["REDIS_URL"]) if Rails.env.production?
+
+Commit your code:
+git add -A
+git commit -m "make app production ready with actioncable"
+git push
+
+Then deploy to heroku:
+git push heroku master
+
+Run any pending migrations:
+heroku run rails db:migrate
+
+Now test it out from the browser, enjoy!

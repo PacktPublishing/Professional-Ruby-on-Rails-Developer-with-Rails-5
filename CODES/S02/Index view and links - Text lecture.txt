@@ -1,0 +1,38 @@
+Index view and links - Text lecture
+Section 2, Lecture 37
+Add the index action to the todos_controller.rb file
+
+def index
+  @todos = Todo.all
+end
+
+Then create an index.html.erb file under views/todos folder:
+<h1>Listing all Todos</h1>
+
+<p>
+  <%= link_to "Create a Todo", new_todo_path %>
+</p>
+
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Description</th>
+  </tr>
+  <% @todos.each do |todo| %>
+    <tr>
+      <td><%= todo.name %></td>
+      <td><%= todo.description %></td>
+      <td><%= link_to "Edit", edit_todo_path(todo) %></td>
+      <td><%= link_to "Show", todo_path(todo) %></td>
+    </tr>
+  <% end %>
+</table>
+
+Add the following two lines (links) to the bottom of the show.html.erb page
+<%= link_to "Edit this todo", edit_todo_path(@todo) %> |
+<%= link_to "Back to todos listing", todos_path %>
+
+Add the following line to the bottom of both the new.html.erb and edit.html.erb files under the views/todos folder:
+<%= link_to "Back to todos listing", todos_path %>
+
+Do a commit and push (git and github)

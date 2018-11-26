@@ -1,0 +1,53 @@
+Finish ChefChat - Part 1 - Text lecture
+Section 7, Lecture 166
+In the chatrooms_controller.rb file, add a require_user restriction:
+before_action :require_user
+
+In the chatroom.coffee file, add in the following:
+
+jQuery(document).on 'turbolinks:load', ->
+  scrollToBottom()
+  return
+
+To deploy to heroku and still have responsive design on phones and other mobile devices, add the following line to your app/views/layouts/application.html.erb in the <head> tag:
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+To add enter functionality to the chat send box, upate the show.html.erb form_for section:
+<%= form_for(@message, remote: true, 
+          :html => {class: "form-horizontal", role: "form"}) do |f| %>
+  <%= f.text_area :content, class: "form-control", 
+                        data: { behavior: "room_speaker" }, 
+                                    placeholder: "Say something!" %>
+  <%= f.submit "Send", class: 'btn btn-primary', 
+                                    data: { send: "message" } %>
+<% end %>
+
+Add jQuery functionality to handle enter being pressed in message box: 
+
+function scrollToBottom(){
+  if($('#messages').length > 0) {
+    $('#messages').scrollTop($('#messages')[0].scrollHeight);
+  }
+}
+
+function submitMessage(event){
+  event.preventDefault();
+  $('#new_message').submit();
+}
+
+$(document).on('keypress', '[data-behavior~=room_speaker]', function(event) {
+  if (event.keyCode === 13) {
+    submitMessage(event);
+  }
+});
+
+$(document).on('click', '[data-send~=message]', function(event) {
+  submitMessage(event);
+});
+
+$(document).on('turbolinks:load', function() {
+  $("#new_message").on("ajax:complete", function(e, data, status) {
+    $('#message_content').val('');
+  })
+  scrollToBottom();
+});

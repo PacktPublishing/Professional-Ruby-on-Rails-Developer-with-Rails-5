@@ -1,0 +1,44 @@
+Familiarity with IDE and command line - Text Lecture
+Section 1, Lecture 9
+Some helpful tips if you are using Codeanywhere:
+
+- If the terminal stops working after a break, right click on Ruby on Rails folder (or whatever you have named your project) and click on Restart to restart the container
+
+- If the terminal says something about rails not found and to run bundle install, it's probably because you changed ruby version from what it was before at default, which is fine. Check the default ruby and ensure you have set the default to the version of ruby which you had used when you created the rails application, otherwise you can switch to that version of ruby by typing in rom use ruby-2.3.4 for example
+
+You can set the default to 2.3.4 if you want to avoid hassles, by typing in:
+
+rvm --default 2.3.4
+
+General and cloud9:
+
+In the file tree/system widget:
+
+- Check show home in favorites by clicking on it
+- Un-check show root file system by clicking on it
+
+In preferences, change soft tabs to 2 spaces under project settings
+
+Some command line commands:
+ls -> list - lists folders/files in the current directory of command line
+cd .. -> change directory, move up 1 directory (don't forget the space and ..)
+mkdir diretoryname -> creates a directory
+example usage:
+mkdir rails_projects -> this will create a directory called rails_projects 
+in the current folder
+cd directoryname -> moves into the directoryname directory from the current 
+directory as long as directory is within current directory
+example usage:
+cd rails_projects -> this will move into rails_projects directory
+clear -> clears the terminal screen and moves to the top
+
+To run the rails server, type in the following command:
+rails s -b $IP -p $PORT
+
+To run rails server in Codeanywhere: rails s --binding=0.0.0.0
+
+To stop the rails server, hit control-c
+
+Remember to run the server from the rails application folder, if you have 
+followed along, workspace is the only rails application so far, so run it
+from the workspace folder at this time

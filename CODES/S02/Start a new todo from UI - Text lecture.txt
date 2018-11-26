@@ -1,0 +1,36 @@
+Start a new todo from UI - Text lecture
+Section 2, Lecture 26
+To check the routes you have, type in:
+rails routes
+
+First ensure you have resources :todos in your routes.rb file
+
+Next step, create a todos controller, create a todos_controller.rb file under app/controllers and fill it in:
+
+class TodosController < ApplicationController
+
+end
+
+Add a new action within it:
+
+class TodosController < ApplicationController
+
+  def new
+
+  end
+
+end
+
+Under views, create a new folder called todos, and a new file under it called new.html.erb so in views/todos/new.html.erb file, fill in the new todo form:
+
+<h1>Create a new todo</h1>
+
+<%= form_for @todo do |f| %>
+
+<% end %>
+
+Then in the new action of your todos_controller.rb file, initiate a new todo object:
+
+def new
+  @todo = Todo.new
+end

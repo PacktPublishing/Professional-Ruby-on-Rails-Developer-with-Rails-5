@@ -1,0 +1,53 @@
+TDD - validations for model - Text lecture
+Section 4, Lecture 59
+To correct a prior migration, it's a good idea to create a new migration file. In the prior video we demo how to correct the recipes table by using the following methods:
+
+rename_column :recipes, :email, :description
+
+basically first the table name, then the column name as it stands now (that you want to change) then the new column name
+
+Then we use change_column to change the column type, notice how we refer to it as description here even though we're changing it in the line before in the same migration file
+
+Then we ran the migration using rails db:migrate
+
+Create a new test file for recipe model tests. Under test/models folder create a file named recipe_test.rb
+
+Within it fill it in with the tests:
+
+require 'test_helper'
+
+class RecipeTest < ActiveSupport::TestCase
+  
+  def setup
+    @recipe = Recipe.new(name: "vegetable", description: "great vegetable recipe")  
+  end
+  
+  test "recipe should be valid" do
+    assert @recipe.valid?
+  end  
+  
+  test "name should be present" do
+    @recipe.name = " "
+    assert_not @recipe.valid?
+  end
+  
+  test "description should be present" do
+    @recipe.description = " "
+    assert_not @recipe.valid?
+  end
+  
+  test "description shouldn't be less than 5 characters" do
+    @recipe.description = "a" * 3
+    assert_not @recipe.valid?
+  end
+  
+  test "description shouldn't be more than 500 characters" do
+    @recipe.description = "a" * 501
+    assert_not @recipe.valid?
+  end
+end
+
+Fill in the validations in the recipe model:
+
+validates :name, presence: true
+validates :description, presence: true, length: { minimum: 5, maximum: 500 }

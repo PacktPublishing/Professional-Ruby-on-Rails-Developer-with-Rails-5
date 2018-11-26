@@ -1,0 +1,221 @@
+Refactor code and wrap section material - Text lecture
+Section 4, Lecture 96
+Update the show page test to include a link for the index page
+
+test "should get recipes show" do
+  get recipe_path(@recipe)
+  assert_template 'recipes/show'
+  assert_match @recipe.name, response.body
+  assert_match @recipe.description, response.body
+  assert_match @chef.chefname, response.body
+  assert_select 'a[href=?]', edit_recipe_path(@recipe), text: "Edit this recipe"
+  assert_select 'a[href=?]', recipe_path(@recipe), text: "Delete this recipe"
+  assert_select 'a[href=?]', recipes_path, text: "Return to recipes listing"
+end
+
+In the show view, show.html.erb, add a button for the return to recipes listing in the actions sections (towards the bottom):
+<%= link_to "Return to recipes listing", recipes_path, 
+
+                                                   class: "btn btn-xs btn-primary" %>
+
+In the _navigation.html.erb partial under app/views/layouts make the necessary updates,
+it looks like below once finished:
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <%= link_to "MyRecipes", root_path, class: "navbar-brand", 
+
+                                                                  id: "logo" %>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li class="active"><a href="#">Link <span class="sr-only">(current)</span></a></li>
+        <li><a href="#">Link</a></li>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Recipes <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><%= link_to "Create a new recipe", new_recipe_path %></li>
+            <li><a href="#">Another action</a></li>
+            <li><a href="#">Something else here</a></li>
+            <li role="separator" class="divider"></li>
+            <li><a href="#">Separated link</a></li>
+            <li role="separator" class="divider"></li>
+            <li><a href="#">One more separated link</a></li>
+          </ul>
+        </li>
+      </ul>
+      <form class="navbar-form navbar-left">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search">
+        </div>
+        <button type="submit" class="btn btn-default">Submit</button>
+      </form>
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="#">Link</a></li>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="#">Action</a></li>
+            <li><a href="#">Another action</a></li>
+            <li><a href="#">Something else here</a></li>
+            <li role="separator" class="divider"></li>
+            <li><a href="#">Separated link</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+
+Under app/views/pages folder, make an update to home.html.erb and link to the recipes listing:
+<p><%= link_to "View all Recipes", recipes_path, 
+
+                           class: "btn btn-danger btn-lg btn-xlarge" %></p>
+
+Create a new file (partial) called _form.html.erb in the app/views/recipes folder. Then copy/paste all the contents of either the new.html.erb or edit.html.erb into this file. Remove the title line from the _form.html.erb and save it, it should look like below:
+<% if @recipe.errors.any? %>
+  <div class="row">
+    <div class="col-md-8 col-md-offset-2">
+      <div class="panel panel-danger">
+        <div class="panel-heading">
+          <h2 class="panel-title">
+            <%= pluralize(@recipe.errors.count, "error") %>
+            prohibited this <%= @recipe.class %> from being saved:
+          </h2>
+          <div class="panel-body">
+            <ul>
+              <% @recipe.errors.full_messages.each do |msg| %>
+                <li><%= msg %></li>
+              <% end %>
+            </ul>
+          </div>
+        </div>  
+      </div>
+    </div>
+  </div>
+<% end %>
+<div class="row">
+  <div class="col-md-12">
+    <%= form_for(@recipe, :html => {class: "form-horizontal", 
+
+                                                               role: "form"}) do |f| %>
+      <div class="form-group">
+        <div class="control-label col-md-2">
+          <%= f.label :name %>
+        </div>
+        <div class="col-md-8">
+          <%= f.text_field :name, class: "form-control", 
+
+                                  placeholder: "Name of recipe", autofocus: true %>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="control-label col-md-2">
+          <%= f.label :description %>
+        </div>
+        <div class="col-md-8">
+          <%= f.text_area :description, rows: 10, class: "form-control", 
+
+                                     placeholder: "Enter steps to create recipe" %>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+          <%= f.submit class: "btn btn-primary btn-lg btn-xlarge" %>
+        </div>
+      </div>
+    <% end %>
+    <div class="col-md-4 col-md-offset-4 colormatch">
+      [ <%= link_to "Cancel request and return to recipes listing", 
+
+                                                                        recipes_path %> ]
+    </div>
+  </div>
+</div>
+
+Then update the new.html.erb and edit.html.erb views to look like below:
+new.html.erb:
+<%= render 'shared/page_title', title: "create a new recipe" %>
+
+<%= render 'form' %>
+
+edit.html.erb:
+<%= render 'shared/page_title', title: "edit an existing recipe" %>
+
+<%= render 'form' %>
+
+Create a new partial called _errors.html.erb under the app/views/shared folder and fill it in with the code dealing with the errors in the _form.html.erb view, basically the lines of code below:
+<% if @recipe.errors.any? %>
+  <div class="row">
+    <div class="col-md-8 col-md-offset-2">
+      <div class="panel panel-danger">
+        <div class="panel-heading">
+          <h2 class="panel-title">
+            <%= pluralize(@recipe.errors.count, "error") %>
+            prohibited this <%= @recipe.class %> from being saved:
+          </h2>
+          <div class="panel-body">
+            <ul>
+              <% @recipe.errors.full_messages.each do |msg| %>
+                <li><%= msg %></li>
+              <% end %>
+            </ul>
+          </div>
+        </div>  
+      </div>
+    </div>
+  </div>
+<% end %>
+
+Once done and saved, remove these lines of code from the _form.html.erb and replace it with:
+<%= render 'shared/errors', obj: @recipe %>
+
+Now you have to update the _errors.html.erb partial and replace all instances of @recipe with obj like below:
+<% if obj.errors.any? %>
+  <div class="row">
+    <div class="col-md-8 col-md-offset-2">
+      <div class="panel panel-danger">
+        <div class="panel-heading">
+          <h2 class="panel-title">
+            <%= pluralize(obj.errors.count, "error") %>
+            prohibited this <%= obj.class %> from being saved:
+          </h2>
+          <div class="panel-body">
+            <ul>
+              <% obj.errors.full_messages.each do |msg| %>
+                <li><%= msg %></li>
+              <% end %>
+            </ul>
+          </div>
+        </div>  
+      </div>
+    </div>
+  </div>
+<% end %>
+
+Test it out!
+
+In your recipes_controller.rb file scroll down to the bottom and create a set_recipe method under private:
+def set_recipe
+  @recipe = Recipe.find(params[:id])
+end
+
+Then remove this line @recipe = Recipe.find(params[:id]) from the edit, update and show methods
+
+Now add this line of code to the top of the recipes_controller.rb file right under the class definition:
+before_action :set_recipe, only: [:show, :edit, :update]
+
+Do a commit and deploy to heroku!
+
+Don't forget to share the heroku app link and github links in the Q & A and also on your blog if you have one.
+
+Congratulations!

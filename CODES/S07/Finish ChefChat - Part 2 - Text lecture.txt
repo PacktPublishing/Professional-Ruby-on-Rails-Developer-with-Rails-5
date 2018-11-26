@@ -1,0 +1,42 @@
+Finish ChefChat - Part 2 - Text lecture
+Section 7, Lecture 168
+Paste this code to the chatroom.coffee file, following video to see if it works:
+
+scrollToBottom = ->
+    if $('#messages').length > 0
+      last_message = $('#messages')[0]
+      last_message.scrollTop = last_message.scrollHeight - 
+                                          (last_message.clientHeight)
+    return
+
+Correct the chefs_controller.rb create action and add in the @chef.id instead of chef.id if you have not already done so
+
+Run tests and make sure they're passing
+
+////////////////// 
+The feature below won't work, since first comment will not always be present unless reloaded
+so what would you do differently here to make it work? hint: check for if there are any 
+comments
+Make new comments show up within pagination, so add a class to your _comment.html.erb file:
+<div class="row comment-fix">
+
+Then update the comments.coffee file:
+received: (data) ->
+  $("#messages .comment-fix:first").prepend(data)
+//////////////////
+
+If you leave turbolinks on, adding this to application.js will help with the Chatroom load:
+$(document).on('turbolinks:load', function() {
+  $("#new_message").on("ajax:complete", function(e, data, status) {
+    $('#message_content').val('');
+  })
+  scrollToBottom();
+});
+
+You may also consider checking adding this in your chatroom.coffee file if it doesn't already exist:
+   
+  jQuery(document).on 'turbolinks:load', ->
+    scrollToBottom()
+    return 
+      
+Do a commit and deploy to heroku, test it out!

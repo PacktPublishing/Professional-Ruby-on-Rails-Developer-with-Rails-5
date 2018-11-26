@@ -1,0 +1,74 @@
+Add pagination to views - Text lecture
+Section 5, Lecture 112
+Let's add pagination to our views now. This will handle not having too many recipes or users show up on each page once the application grows in use, also the @chefs or @recipes instance variables don't overflow
+
+Benefits:
+It doesnt pick up too many articles or users in instance variables
+
+It breaks it up based on the number of pages
+
+As you click on more pages, it picks up the recipes or users for those pages
+
+It organizes the recipes and users nicely for our views
+
+Install pagination gems first:
+gem 'will_paginate', '3.1.0'
+gem 'bootstrap-will_paginate', '0.0.10'
+
+Run:
+bundle install --without production
+
+Per gem's documentation, update the index action of the recipes_controller.rb file:
+
+@recipes = Recipe.paginate(page: params[:page])
+
+This will load the default number of recipes per page (20 or 30), to customize to 5:
+
+@recipes = Recipe.paginate(page: params[:page], per_page: 5)
+
+Now update the view to display this, open index.html.erb under app/views/recipes folder:
+
+<div align="center">
+  <%= will_paginate %>
+</div>
+..
+then after the render
+
+<div align="center">
+  <%= will_paginate %>
+</div>
+
+Update the default ordering, so the latest recipe is picked up first in the listing view, add below to the recipe.rb model file:
+default_scope -> { order(updated_at: :desc) }
+
+Now do the same for chefs
+Go to chefs_controller.rb file and update the index action
+
+@chefs = Chef.paginate(page: params[:page], per_page: 5)
+
+Now in the index.html.erb view under app/views/chefs folder, under div align center, add:
+<%= will_paginate %>
+
+Then at bottom after <% end %>
+<%= will_paginate %>
+
+Now let's add it to chefs show page:
+
+In the show action add a new instance variable to pick up all of the chefs recipes:
+@chef_recipes = @chef.recipes.paginate(page: params[:page], per_page: 5)
+
+Then in show.html.erb view under app/views/chefs folder add below after the chef's recipes:
+
+<div align="center">
+  <%= will_paginate @chef_recipes %>
+</div>
+
+Change the obj in the render line to be @chef_recipes:
+<%= render 'recipes/recipe', obj: @chef_recipes %>
+
+Then at the bottom add:
+<div class="center">
+  <%= will_paginate @chef_recipes %>
+</div>
+
+Test it out!

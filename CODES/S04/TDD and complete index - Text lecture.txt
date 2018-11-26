@@ -1,0 +1,60 @@
+TDD and complete index - Text lecture
+Section 4, Lecture 70
+Modify the recipes_test.rb integration test file with an expectation to view the listings:
+
+ def setup
+  @chef = Chef.create!(chefname: "mashrur", email: "mashrur@example.com")
+  @recipe = Recipe.create(name: "vegetable saute", 
+
+                                                      description: "great vegetable sautee, 
+
+                                                     add vegetable and oil", chef: @chef)
+  @recipe2 = @chef.recipes.build(name: "chicken saute", 
+
+                                                     description: "great chicken dish")
+  @recipe2.save
+end
+
+test "should get recipes index" do
+  get recipes_path
+  assert_response :success
+end
+
+test "should get recipes listing" do
+  get recipes_path
+  assert_template 'recipes/index'
+  assert_match @recipe.name, response.body
+  assert_match @recipe2.name, response.body
+end
+
+Add the following gem to your group :development, :test in the gemfile:
+gem 'rails-controller-testing'
+
+Then run: bundle install --without production to install the gem
+
+In the index action of the recipes_controller.rb file add in the code to grab all recipes in an @recipes instance variable:
+
+def index
+  @recipes = Recipe.all
+end
+
+In the views, update the index.html.erb file and add in code to display the names along with styling:
+<h1 align="center">Listing all recipes</h1>
+<% @recipes.each do |recipe| %>
+  <div class="row">
+    <div class="col-md-2">
+      <section class="center">
+        
+      </section>
+    </div>
+    <div class="col-md-8 well">
+      <h4><%= recipe.name %></h4>
+      <p><%= truncate(recipe.description, length: 150) %></p>
+      <p>
+        <span class="quiet"><small>Created 
+
+        <%= time_ago_in_words(recipe.created_at) %> ago</small></span>
+      </p> 
+    </div>
+  </div>
+<% end %>

@@ -1,0 +1,97 @@
+Destroy, refactor and homework - Text lecture
+Section 2, Lecture 39
+Add the delete link to the index.html.erb page under the links for edit and show:
+
+<td><%= link_to 'delete', todo_path(todo), method: :delete, 
+                                 data: { confirm: "Are you sure?"} %></td>
+
+Add the destroy action in the todos_controller.rb file:
+
+def destroy
+  @todo = Todo.find(params[:id])
+  @todo.destroy
+  flash[:notice] = "Todo was deleted successfully"
+  redirect_to todos_path
+end
+
+Try a short form of the destroy action and see if it works:
+
+def destroy
+  Todo.find(params[:id]).destroy
+end
+
+Update application.html.erb and change the code for the flash messages block to read:
+<%= render 'layouts/messages' %>
+
+Create a new partial in the views/layouts folder called _messages.html.erb and within there paste the code for the flash messages, test that the flash messaging is still working from the browser
+
+Now let's refactor code:
+Under views/todos folder, create a new file called _form.html.erb, then take the code below the h1 tags (basically just exclude the heading) from either the new.html.erb or the edit.html.erb, then paste it to this _form.html.erb file
+Once saved, remove the code from the new.html.erb and edit.html.erb files (except the heading), and add the following lines to each:
+<%= render 'form' %>
+
+Add a before action to remove some common code in the todos_controller, the completed todo's controller looks like below, changes made to edit, update, show, destroy actions and the first line after the class definition added:
+
+class TodosController < ApplicationController
+  before_action :set_todo, only: [:edit, :update, :show, :destroy]
+  
+  def new
+    @todo = Todo.new
+  end
+  
+  def create
+    @todo = Todo.new(todo_params)
+    if @todo.save
+      flash[:notice] = "Todo was created successfully!"
+      redirect_to todo_path(@todo)
+    else
+      render 'new'
+    end
+  end
+  
+  def show
+  end
+  
+  def edit
+  end
+  
+  def update
+    if @todo.update(todo_params)
+      flash[:notice] = "Todo was successfully updated"
+      redirect_to todo_path(@todo)
+    else
+      render 'edit'
+    end
+  end
+  
+  def index
+    @todos = Todo.all
+  end
+  
+  def destroy
+    @todo.destroy
+    flash[:notice] = "Todo was deleted successfully"
+    redirect_to todos_path
+  end
+  
+  private
+  
+    def set_todo
+      @todo = Todo.find(params[:id])
+    end
+  
+    def todo_params
+      params.require(:todo).permit(:name, :description)
+    end
+
+end
+
+HOMEWORK ASSIGNMENT for this section:
+guides.rubyonrails.org/getting_started.html
+
+Work through the blog_app, create it to completion
+
+- Remember to create this new rails app in the rails_projects directory (not workspace or todoapp folders)
+- Remember to use rails s -b $IP -p $PORT to start the server instead of rails s if using cloud9
+- Use git for version control
+- Create a github repo for the app and post the github repo link to Q & A of the video lecture

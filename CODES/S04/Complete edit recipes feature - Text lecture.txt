@@ -1,0 +1,31 @@
+Complete edit recipes feature - Text lecture
+Section 4, Lecture 92
+Fill in the code for the valid recipe edit test:
+  test "successfully edit a recipe" do
+    get edit_recipe_path(@recipe)
+    assert_template 'recipes/edit'
+    updated_name = "updated recipe name"
+    updated_description = "updated recipe description"
+    patch recipe_path(@recipe), 
+
+                       params: { recipe: { name: updated_name, 
+
+                                   description: updated_description } }
+    assert_redirected_to @recipe
+    #follow_redirect!
+    assert_not flash.empty?
+    @recipe.reload
+    assert_match updated_name, @recipe.name
+    assert_match updated_description, @recipe.description
+  end
+
+Then fill in the successfuly update portion of your update action in recipes controller:
+
+  def update
+    if @recipe.update(recipe_params)
+      flash[:success] = "Recipe was updated successfully!"
+      redirect_to recipe_path(@recipe)
+    else
+      render 'edit'
+    end
+  end

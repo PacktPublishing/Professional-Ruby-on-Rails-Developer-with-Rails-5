@@ -1,0 +1,46 @@
+Add profile image and refactor code - Text lecture
+Section 4, Lecture 76
+To create a title partial -> Create a shared folder under app/views folder. Then in it create a file
+
+called _page_title.html.erb and fill it in:
+<h1 align="center"><%= title.capitalize %></h1>
+<hr />
+
+Then update the top of the show.html.erb and index.html.erb files to look like below ->
+show.html.erb:
+<%= render 'shared/page_title', title: @recipe.name %>
+
+index.html.erb:
+<%= render 'shared/page_title', title: "showing all recipes" %>
+
+In your app/helpers folder, open the application_helper file and fill in the code for the getting gravatars:
+
+def gravatar_for(user, options = { size: 80 })
+  gravatar_id = Digest::MD5::hexdigest(user.email.downcase)
+  size = options[:size]
+  gravatar_url = "https://secure.gravatar.com/avatar/#{gravatar_id}?s=#{size}"
+  image_tag(gravatar_url, alt: user.chefname, 
+                            class: "img-circle")
+end
+
+Update the show method to look like below:
+<%= render 'shared/page_title', title: @recipe.name %>
+
+<div class="well col-md-8 col-md-offset-2">
+  <h4 class="center description"><strong>Steps: </strong></h4>
+  <hr />
+  <%= simple_format(@recipe.description) %>
+  <hr />
+  <div class="pull-right">
+    <p class="center">
+      <em>Created by:</em>
+    </p>
+    <p class="center">
+      <%= link_to gravatar_for(@recipe.chef), recipes_path %>
+    </p>
+    <p class="center">
+      <small><%= @recipe.chef.chefname.capitalize %></small>
+      <div class="pull-right"><%= time_ago_in_words(@recipe.created_at) %> ago</div>
+    </p>
+  </div>
+</div>

@@ -1,0 +1,80 @@
+Ingredients show and nav - Text lecture
+Section 6, Lecture 141
+Under app/views/ingredients folder, create a new file called show.html.erb:
+<%= render 'shared/page_title', title: "#{@ingredient.name}" %>
+<% if @ingredient.recipes.count != 0 %>
+  <h4 align="center">Recipe's containing <%= @ingredient.name %></h4>
+  <div align="center">
+    <%= will_paginate @ingredient_recipes %>
+  </div>
+  <%= render 'recipes/recipe', obj: @ingredient_recipes %>
+  <div align="center">
+    <%= will_paginate @ingredient_recipes %>
+  </div>
+<% else %>
+  <h4 align="center">No recipes yet!</h4>
+<% end %>
+
+Under app/controllers update the ingredients_controller.rb file:
+class IngredientsController < ApplicationController
+  before_action :set_ingredient, only: [:edit, :update, :show]
+  
+  def new
+    
+  end
+  
+  def create
+    
+  end
+  
+  def edit
+    
+  end
+  
+  def update
+    
+  end
+  
+  def show
+    @ingredient_recipes = @ingredient.recipes.paginate(page: params[:page], 
+                                                              per_page: 5)
+  end
+  
+  def index
+    @ingredients = Ingredient.paginate(page: params[:page], per_page: 5)
+  end
+  
+  private
+  
+  def set_ingredient
+    @ingredient = Ingredient.find(params[:id])
+  end
+  
+end
+
+Update the _recipe.html.erb partial to add the area to display the ingredients in recipes, under the description of the recipe:
+<% if recipe.ingredients.any? %>
+  <p>Ingredients: <%= render recipe.ingredients %></p>
+<% end %>
+
+Now create a new partial _ingredient.html.erb under the app/views/ingredients folder for this to work:
+<span class="badge"><%= link_to ingredient.name, 
+                      ingredient_path(ingredient) %>   </span>
+
+Update the _navigation.html.erb partial to display all ingredients:
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" 
+  role="button" aria-haspopup="true" aria-expanded="false">
+                            Ingredients <span class="caret"></span></a>
+  <ul class="dropdown-menu">
+    <li><%= link_to "All Ingredients", ingredients_path %></li>
+    <% Ingredient.all.each do |ingredient| %>
+      <li><%= link_to ingredient.name.capitalize, 
+                              ingredient_path(ingredient) %></li>
+    <% end %>
+    <li role="separator" class="divider"></li>
+    <li><%= link_to "New Ingredient", new_ingredient_path %></li>
+  </ul>
+</li>
+
+Update the styling for footer to provide some padding on both sides

@@ -1,0 +1,67 @@
+Install Bootstrap and start homepage - Text lecture
+Section 3, Lecture 43
+Create an integration test for the pages:
+
+rails generate integration_test pages
+
+Then within the class PagesTest, type in the two tests:
+
+test "should get home" do
+get pages_home_url
+assert_response :success
+end
+
+test "should get root" do
+get root_url
+assert_response :success
+end
+
+run your test suite by typing in:
+rails test
+
+Add the two routes to the config/routes.rb file:
+root "pages#home"
+get 'pages/home', to: 'pages#home'
+
+Run the tests again
+
+Build out the pages_controller.rb file under app/controllers folder and add the home action
+
+class PagesController < ApplicationController
+def home
+end
+end
+
+Now add a view for home, create a folder named pages under app/views folder then within the pages folder create a file called home.html.erb and fill it in:
+<h1>Welcome to MyRecipes App</h1>
+
+Check out getbootstrap.com for homepage ideas, then build a mockup of your homepage
+
+Add the bootstrap sass gem to your gemfile under your rails gem:
+gem 'bootstrap-sass', '~> 3.3.6'
+
+can be 3.3.7 as well
+
+If you are using Rails 5.1+ and you don't see a jquery-rails gem in your gemfile you will need to add this gem as well, so it would look like below:
+
+gem 'bootstrap-sass', '~> 3.3.7'
+
+gem 'jquery-rails'
+
+Install the gem in the app:
+bundle install --without production
+
+Then add the following line to your app/assets/javascripts/application.js file under the line that says //= require jquery_ujs:
+//= require bootstrap-sprockets
+
+If you are using Rails 5.1+ then you will need to add jquery here as well, so it would look like below:
+
+//= require rails-ujs
+
+//= require jquery
+
+//= require bootstrap-sprockets
+
+In the video an error is made here and the 'require' from the line above is left off, this will be corrected later
+
+We will continue in the next video

@@ -1,0 +1,38 @@
+Add ingredients at recipe creation - Text lecture
+Section 6, Lecture 145
+In the recipes_controller.rb file, update the recipe_params method:
+def recipe_params
+  params.require(:recipe).permit(:name, :description, ingredient_ids: [])
+end
+
+Update the _form.html.erb partial under app/views/recipes folder to include this section:
+<div class="form-group">
+  <div class="row">
+    <div class="col-md-offset-2 col-md-8">
+      <%= f.collection_check_boxes :ingredient_ids, 
+                                    Ingredient.all, :id, :name do |cb| %>
+<% cb.label(class: "checkbox-inline input_checkbox") {cb.check_box(class: "checkbox") + cb.text} %>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+****Make sure the lines are correct above (don't break in the middle and move to the next line)
+Add the code above right after description form group and right above the submit form group
+
+Add the input_checkbox styling to custom.css.scss
+.input_checkbox input {
+  width: auto !important;
+}
+
+Update the app/views/recipes/show.html.erb view to display categories associated with recipes right after description and above created by:
+<div class="well col-md-8 col-md-offset-2">
+  <h4 class="center description"><strong>Steps: </strong></h4>
+  <hr />
+  <%= simple_format(@recipe.description) %>
+  <hr />
+  <% if @recipe.ingredients.any? %>
+    <p>Ingredients: <%= render @recipe.ingredients %></p>
+  <% end %>
+
+Test out from the browser!

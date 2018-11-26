@@ -1,0 +1,31 @@
+Profile image feature - Text lecture
+Section 4, Lecture 78
+Update the index.html.erb page to include the gravatar:
+
+<%= render 'shared/page_title', title: "showing all recipes" %>
+
+<% @recipes.each do |recipe| %>
+  <div class="row">
+    <div class="col-md-2">
+      <section class="chef_info center">
+        <%= gravatar_for(recipe.chef, size: 120) %>
+      </section>
+    </div>
+    <div class="col-md-8 well">
+      <h4><%= link_to recipe.name, recipe_path(recipe) %></h4>
+      <p><%= truncate(recipe.description, length: 150) %></p>
+      <p>
+        <span class="quiet"><small>Created 
+
+            <%= time_ago_in_words(recipe.created_at) %> 
+
+           ago</small></span>
+      </p> 
+    </div>
+  </div>
+<% end %>
+
+Now add the chef_info class to the custom.css.scss file in the app/assets/stylesheets folder
+.chef_info {
+  margin-top: 10px;
+}

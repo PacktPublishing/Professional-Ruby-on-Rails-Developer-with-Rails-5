@@ -1,0 +1,29 @@
+Version control with Git and Github - Text lecture
+Section 2, Lecture 32
+To read more about git:
+
+https://git-scm.com
+
+If you don't already have git setup in your local environment, set it up by the next two steps:
+git config --global user.name "Your name"
+git config --global user.email "Your email address"
+
+To initialize a git repo for your app, from the app's directory type in:
+git init
+
+Then add all the files for staging:
+git add -A
+
+Then make a commit and save all the changes with a message:
+git commit -m "Inital commit"
+
+To show your public ssh key, type in:
+cat ~/.ssh/id_rsa.pub
+
+Copy paste this to the settings->SSH section of your github account
+
+To create a new repository in github, click on the + sign on top right menu, then select new repository, give it a name, click on create repository, select from existing repository:
+git remote add origin git@github.com:yourrepositoryname
+git push -u origin master
+
+Course github repo: github.com/proror5railsudemy

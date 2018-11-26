@@ -1,0 +1,130 @@
+Edit chef feature - Text lecture
+Section 5, Lecture 108
+Generate an integration test for chefs edit:
+rails generate integration_test chefs_edit
+
+Then pull up the chefs_edit_test.rb file and fill in the setup and two other methods:
+
+  def setup
+   @chef = Chef.create!(chefname: "mashrur", 
+                      email: "mashrur@example.com",
+                          password: "password", 
+                          password_confirmation: "password")
+  end
+  
+  test "reject an invalid edit" do
+    get edit_chef_path(@chef)
+    assert_template 'chefs/edit'
+    patch chef_path(@chef), params: { chef: { chefname: " ", 
+                              email: "mashrur@example.com" } }
+    assert_template 'chefs/edit'
+    assert_select 'h2.panel-title'
+    assert_select 'div.panel-body'
+  end
+  
+  test "accept valid signup" do
+    get edit_chef_path(@chef)
+    assert_template 'chefs/edit'
+    patch chef_path(@chef), params: { chef: { chefname: "mashrur1", 
+                                email: "mashrur1@example.com" } }
+    assert_redirected_to @chef
+    assert_not flash.empty?
+    @chef.reload
+    assert_match "mashrur1", @chef.chefname
+    assert_match "mashrur1@example.com", @chef.email
+  end
+
+Update the chef.rb model file and allow for nil values for password:
+
+validates :password, presence: true, length: { minimum: 5 }, allow_nil: true
+
+Add the edit and update actions for the chefs_controller.rb file:
+
+  def edit
+    @chef = Chef.find(params[:id])
+  end
+  
+  def update
+    @chef = Chef.find(params[:id])
+    if @chef.update(chef_params)
+      flash[:success] = "Your account was updated successfully"
+      redirect_to @chef
+    else
+      render 'edit'
+    end  
+  end
+
+Open new.html.erb under app/views/chefs folder and copy the part from <%= render 'shared/errors' to the bottom of the page and paste it in a new file partial (in the same folder) called _form.html.erb:
+<%= render 'shared/errors', obj: @chef %>
+
+<div class="row">
+  <div class="col-md-12">
+    <%= form_for(@chef, :html => {class: "form-horizontal", 
+                                      role: "form"}) do |f| %>
+      <div class="form-group">
+        <div class="control-label col-md-2">
+          <%= f.label :chefname, "Choose Chefname" %>
+        </div>
+        <div class="col-md-8">
+          <%= f.text_field :chefname, class: "form-control", 
+              placeholder: "Enter your name", autofocus: true %>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="control-label col-md-2">
+          <%= f.label :email %>
+        </div>
+        <div class="col-md-8">
+          <%= f.email_field :email, class: "form-control", 
+                                placeholder: "Enter your email" %>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="control-label col-md-2">
+          <%= f.label :password %>
+        </div>
+        <div class="col-md-8">
+          <%= f.password_field :password, class: "form-control", 
+                              placeholder: "Choose a password" %>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="control-label col-md-2">
+          <%= f.label :password_confirmation, "Confirm Password" %>
+        </div>
+        <div class="col-md-8">
+          <%= f.password_field :password_confirmation, 
+            class: "form-control", placeholder: "Confirm password" %>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+<%= f.submit(@chef.new_record? ? "Create my account" : "Update my account", 
+                            class: "btn btn-primary btn-lg btn-xlarge") %>
+        </div>
+      </div>
+    <% end %>
+    <div class="col-md-4 col-md-offset-4 colormatch">
+      [ <%= link_to "Cancel request and return to recipes listing", 
+                                                recipes_path %> ]
+    </div>
+  </div>
+</div>
+
+Make sure to update the submit line to check for new_record? (like shown above)
+
+Then replace all this code in the new.html.erb file and make it look like below:
+<%= render 'shared/page_title', title: "Sign up for the application" %>
+
+<%= render 'form' %>
+
+Now create another file called edit.html.erb in the same app/views/chefs folder and fill it in:
+<%= render 'shared/page_title', title: "Edit your profile" %>
+
+<%= render 'form' %>
+
+Make sure the test suite passes
+
+Test it out from the browser, ensure that your chefs (users) have password for the ones you are testing otherwise it won't work and will give a password can't be blank error
+
+Do a commit

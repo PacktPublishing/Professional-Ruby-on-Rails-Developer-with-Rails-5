@@ -1,0 +1,78 @@
+Production deploy and start main project app - Text lecture
+Section 3, Lecture 41
+To deploy your todoapp to production, create an account with heroku, ensure you confirm the account by clicking on the link in your email address
+
+Then pull up your gemfile, move the sqlite3 gem to group development, test (ensure it's no longer in the top/main area of your gemfile)
+
+Add the following group at the bottom:
+
+group :production do
+  gem 'pg'
+end
+
+Then run:
+bundle install --without production
+
+Then do another commit to capture the updates and modify the gemfile.lock file
+git add -A
+git commit -m "make app production ready"
+git push
+
+Then log-in to your heroku account:
+heroku login
+
+Enter in your email and password for your heroku account
+
+Add your public ssh key to your heroku account:
+heroku keys:add
+
+Enter when asked whether to upload public ssh key to heroku: Y
+
+Create a new production app in heroku:
+heroku create
+
+Rename it to something you like:
+heroku rename yourname-todoapp
+
+Deploy your local app to heroku:
+git push heroku master
+
+Then run the migrations in heroku:
+heroku run rails db:migrate
+
+Now check out your app at yourname-todoapp.herokuapp.com
+
+Enjoy with family and friends!
+
+Now let's start our main project app for this course:
+
+Navigate out of todoapp and into rails_projects directory
+
+From there (rails_projects directory), type in:
+rails new myrecipes
+
+This will build the new app
+
+Test it out by typing in:
+cd myrecipes
+
+Then run the rails server:
+rails s -b $IP -p $PORT
+
+Test out that you get the rails main welcome page from the browser, then shut down the server
+
+Initiate a git repo:
+git init
+
+Then make a commit:
+git add -A
+git commit -m "Initial commit"
+
+Create a new repository in your github account, then follow the steps (two lines) to move existing app to your github repo
+
+Then test it out and ensure your app is pointing to the right repo by typing in:
+git remote -v
+
+Reload the github page and ensure your latest commit/project is showing up
+
+Congratulations!

@@ -1,0 +1,50 @@
+Build homepage and add styling - Text directions and code
+Section 3, Lecture 49
+In views/layouts/application.html.erb add in the following line right below the <body> tag:
+
+<%= render 'layouts/navigation' %>
+
+Then in the same views/layouts folder, create a new file called _navigation.html.erb
+
+Fill in the navigation code here from getbootstrap.com
+
+To give your navigation bar some custom color, add the following to the top of the custom.css.scss file (above the @import statements):
+
+$navbar-default-bg: enter_color_here;
+
+I added the following styling to logo and logo:hover:
+
+#logo {
+  float: left;
+  font-size: 1.7em;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: -1px;
+  font-weight: bold;
+}
+  
+#logo:hover {
+  color: #fff;
+  text-decoration: none;
+}  
+
+I changed the default "Brand" line in the navigation partial with the following line:
+<%= link_to "MyRecipes", root_path, class: "navbar-brand", id: "logo" %>
+
+Within application.html.erb, wrap the <%= yield %> inside a container:
+<div class="container">
+<%= yielf %>
+</div>
+
+Add the .center class to custom.css.scss
+.center {
+  text-align: center;
+}
+
+My home page after this video looks like below:
+
+<div class="jumbotron center">
+  <h1>Welcome to MyRecipes</h1>
+  <h2>The best recipe sharing app!</h2>
+  <p><%= link_to "Sign up or log in", "#" class: "btn btn-danger btn-lg" %></p>
+</div>

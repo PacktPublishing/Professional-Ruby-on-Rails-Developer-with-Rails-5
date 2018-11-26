@@ -1,0 +1,9 @@
+Complete show recipe - Text lecture
+Section 4, Lecture 74
+In the custom.css.scss file add in the following class:
+
+.well a {
+  color: #073B15;
+}
+
+Go to gravatar.com and associate a profile image with your email address (or an email address) that you control

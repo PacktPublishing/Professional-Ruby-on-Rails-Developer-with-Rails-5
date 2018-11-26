@@ -1,0 +1,76 @@
+Login and authentication - Text lecture
+Section 5, Lecture 116
+We'll add log in log out functionality
+
+First add the routes to the config/routes.rb file
+
+get '/login', to: 'sessions#new'
+post '/login', to: "sessions#create"
+delete '/logout', to: "sessions#destroy"
+
+Try rails routes to show the paths created
+
+Add the sessions_controller.rb file to create the sessions controller under app/controllers:
+class SessionsController < ApplicationController
+  
+  def new
+  # will simply render the form
+  end
+
+  def create
+  # will create the session and move the user to logged in state
+  end
+
+  def destroy
+  # will end the session or simulate logged out state
+  end
+
+end 
+
+Now build the login form ->
+Under app/views folder create a sessions folder, and within it create a new.html.erb file:
+<%= render 'shared/page_title', title: "log in" %>
+<%= form_for(:session, :html => {class: "form-horizontal", 
+                        role: "form"}, url: login_path) do |f| %>
+  <div class="form-group">
+    <div class="control-label col-md-2">
+      <%= f.label :email %>
+    </div>
+    <div class="col-md-8">
+      <%= f.email_field :email, class: "form-control", 
+                            placeholder: "Enter your email" %>
+    </div>
+  </div>
+  
+  <div class="form-group">
+    <div class="control-label col-md-2">
+      <%= f.label :password %>
+    </div>
+    <div class="col-md-8">
+      <%= f.password_field :password, class: "form-control", 
+                          placeholder: "Enter your password" %>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <div class="col-md-offset-2 col-md-10">
+    <%= f.submit "Log in", class: 'btn btn-primary btn-lg btn-xlarge' %>
+    </div>
+  </div>
+<% end %>
+<div class="col-md-4 col-md-offset-4 colormatch">
+  [ <%= link_to "Cancel request and return to recipes listing", 
+                                                    recipes_path %> ]
+</div>
+
+Remember: Sessions are not model backed resource, so there is no CRUD action with sessions hash, it's simply backed by the browser's cookie which stores an encrypted chef id which we can use
+
+If you put debugger in the create action, you can refer to the below to see them in the paused web session
+
+params[:session]
+params[:session][:email]
+params[:session][:password]
+
+type continue to release the session
+
+That is how we're going to access the email and password combo to log in users by creating sessions

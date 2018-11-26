@@ -1,0 +1,212 @@
+Add controller restrictions - Text lecture
+Section 5, Lecture 126
+Restrict actions from Controller:
+
+Completed recipes_controller.rb file:
+
+class RecipesController < ApplicationController
+  before_action :set_recipe, only: [:show, :edit, :update, :destroy]
+  before_action :require_user, except: [:index, :show]
+  before_action :require_same_user, only: [:edit, :update, :destroy]
+  
+  def index
+    @recipes = Recipe.paginate(page: params[:page], per_page: 5)
+  end
+  
+  def show
+    
+  end
+  
+  def new
+    @recipe = Recipe.new
+  end
+  
+  def create
+    @recipe = Recipe.new(recipe_params)
+    @recipe.chef = current_chef
+    if @recipe.save
+      flash[:success] = "Recipe was created successfully!"
+      redirect_to recipe_path(@recipe)
+    else
+      render 'new'
+    end
+  end
+  
+  def edit
+    
+  end
+  
+  def update
+    if @recipe.update(recipe_params)
+      flash[:success] = "Recipe was updated successfully!"
+      redirect_to recipe_path(@recipe)
+    else
+      render 'edit'
+    end
+  end
+  
+  def destroy
+    Recipe.find(params[:id]).destroy
+    flash[:success] = "Recipe deleted successfully"
+    redirect_to recipes_path
+  end
+  
+  private
+  
+    def set_recipe
+      @recipe = Recipe.find(params[:id])
+    end
+  
+    def recipe_params
+      params.require(:recipe).permit(:name, :description)
+    end
+    
+    def require_same_user
+      if current_chef != @recipe.chef
+        flash[:danger] = "You can only edit or delete your own recipes"
+        redirect_to recipes_path
+      end  
+    end
+end
+
+Completed chefs_controller.rb file
+
+class ChefsController < ApplicationController
+  before_action :set_chef, only: [:show, :edit, :update, :destroy]
+  before_action :require_same_user, only: [:edit, :update, :destroy]
+  
+  def index
+    @chefs = Chef.paginate(page: params[:page], per_page: 5)
+  end
+  
+  def new
+    @chef = Chef.new
+  end
+  
+  def create
+    @chef = Chef.new(chef_params)
+    if @chef.save
+      session[:chef_id] = @chef.id
+      flash[:success] = "Welcome #{@chef.chefname} to MyRecipes App!"
+      redirect_to chef_path(@chef)
+    else
+      render 'new'
+    end
+  end
+  
+  def show
+    @chef_recipes = @chef.recipes.paginate(page: params[:page], per_page: 5)
+  end
+  
+  def edit
+  end
+  
+  def update
+    if @chef.update(chef_params)
+      flash[:success] = "Your account was updated successfully"
+      redirect_to @chef
+    else
+      render 'edit'
+    end  
+  end
+  
+  def destroy
+    @chef.destroy
+    flash[:danger] = "Chef and all associated recipes have been deleted!"
+    redirect_to chefs_path
+  end
+  
+  private
+  
+  def chef_params
+    params.require(:chef).permit(:chefname, :email, :password, 
+                                            :password_confirmation)
+  end
+  
+  def set_chef
+    @chef = Chef.find(params[:id])
+  end
+  
+  def require_same_user
+    if current_chef != @chef
+      flash[:danger] = "You can only edit or delete your own account"
+      redirect_to chefs_path
+    end
+  end
+  
+end
+
+Update the recipes_edit_tests to sign_in chefs:
+
+  test "reject invalid recipe update" do
+    sign_in_as(@chef, "password")
+    get edit_recipe_path(@recipe)
+    assert_template 'recipes/edit'
+    patch recipe_path(@recipe), params: { recipe: { name: " ", 
+                                description: "some description" } } 
+    assert_template 'recipes/edit'
+    assert_select 'h2.panel-title'
+    assert_select 'div.panel-body'
+  end
+  
+  test "successfully edit a recipe" do
+    sign_in_as(@chef, "password")
+    get edit_recipe_path(@recipe)
+    assert_template 'recipes/edit'
+    updated_name = "updated recipe name"
+    updated_description = "updated recipe description"
+    patch recipe_path(@recipe), params: { recipe: { name: updated_name, 
+                                description: updated_description } }
+    assert_redirected_to @recipe
+    #follow_redirect!
+    assert_not flash.empty?
+    @recipe.reload
+    assert_match updated_name, @recipe.name
+    assert_match updated_description, @recipe.description
+  end
+
+Update recipes_test "reject invalid recipe submissions":
+  test "reject invalid recipe submissions" do
+    sign_in_as(@chef, "password")
+    get new_recipe_path
+    assert_template 'recipes/new'
+    assert_no_difference 'Recipe.count' do
+      post recipes_path, params: { recipe: { name: " ", 
+                                          description: " " } }
+    end
+    assert_template 'recipes/new'
+    assert_select 'h2.panel-title'
+    assert_select 'div.panel-body'
+  end
+
+Update the chefs_edit_test for the same sign ins:
+  test "reject an invalid edit" do
+    sign_in_as(@chef, "password")
+    get edit_chef_path(@chef)
+    assert_template 'chefs/edit'
+    patch chef_path(@chef), params: { chef: { chefname: " ", 
+                                    email: "mashrur@example.com" } }
+    assert_template 'chefs/edit'
+    assert_select 'h2.panel-title'
+    assert_select 'div.panel-body'
+  end
+  
+  test "accept valid signup" do
+    sign_in_as(@chef, "password")
+    get edit_chef_path(@chef)
+    assert_template 'chefs/edit'
+    patch chef_path(@chef), params: { chef: { chefname: "mashrur1", 
+                                  email: "mashrur1@example.com" } }
+    assert_redirected_to @chef
+    assert_not flash.empty?
+    @chef.reload
+    assert_match "mashrur1", @chef.chefname
+    assert_match "mashrur1@example.com", @chef.email
+  end
+
+Update the link in the sessions/new.html.erb login form to have a route for the signup path:
+<div class="center colormatch">
+  [ <%= link_to "Don't have an account? Sign up now!", signup_path %> ]
+</div>
+
+Ensure all the tests pass!

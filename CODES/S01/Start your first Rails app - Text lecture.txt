@@ -1,0 +1,42 @@
+Start your first Rails app - Text lecture
+Section 1, Lecture 15
+To start a new rails application named todoapp, type in:
+
+rails new todoapp
+
+Navigate to todoapp, if you are in rails_projects directory:
+cd todoapp
+
+To start the server:
+rails s -b $IP -p $PORT
+
+To display hello world at root route, open the config/routes.rb file and enter in the following route:
+root "application#hello"
+
+Then in the application controller under the line protect_from_forgery.. add the following method:
+
+def hello
+  render plain: "hello world!"
+end
+
+save it, start the server (if you haven't already) and reload the page
+
+well done!
+
+Now to actually have a home page utilizing the controller and views (instead of rendering text like above):
+
+change the routes.rb file line to
+root "pages#home"
+
+create a new file under controllers and call it pages_controller.rb, then fill it in:
+class PagesController < ApplicationController
+  def home
+  end
+end
+
+create a new folder under views called pages
+within this pages folder under views, create a new file called home.html.erb then fill it in with the following:
+<h1>Hello World!</h1>
+
+To shut down the server:
+ctrl-c

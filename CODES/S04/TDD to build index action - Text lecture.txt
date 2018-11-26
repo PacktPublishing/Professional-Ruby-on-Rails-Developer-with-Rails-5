@@ -1,0 +1,35 @@
+TDD to build index action - Text lecture
+Section 4, Lecture 68
+Issue the command to generate an integration test for recipes:
+rails generate integration_test recipes
+
+Write a test within the recipes_test.rb file generated in the test/integration folder:
+
+test "should get recipes index" do
+  get recipes_url
+  assert_response :success
+end
+
+Add the route in the routes file:
+
+get '/recipes', to: 'recipes#index'
+
+Create a recipes_controller.rb file under app/controllers and fill it in:
+
+class RecipesController < ApplicationController
+
+end
+
+Run the test and you'll find a fail for missing index action, therefore add in the index action in the recipes_controller.rb file:
+
+def index
+
+end
+
+Now the failed test will say there is no template/view
+
+Add this by first creating a recipes folder under app/views folder
+
+Then within this recipes folder create an index.html.erb file
+
+Now the tests should pass

@@ -1,0 +1,21 @@
+Edit action - Text lecture
+Section 2, Lecture 34
+First fill in the edit action in the todos_controller.rb file
+
+def edit
+  @todo = Todo.find(params[:id])
+end
+
+Create an edit.html.erb file under the views/todos folder and fill it in with the contents of the new.html.erb except the heading (first line) which should be:
+<h1>Edit an existing todo</h1>
+
+The rest should be identical to the new.html.erb file
+
+Test it out from the browser
+
+Save your work:
+git add -A
+then 
+git commit -m "Add edit and update feature"
+then
+git push 

@@ -1,0 +1,51 @@
+Delete chefs feature - Text lecture
+Section 5, Lecture 114
+First step is to add the integration test for delete chef feature
+Add the delete chef test to chefs_index_test.rb integration test file:
+  test "should delete chef" do
+    get chefs_path
+    assert_template 'chefs/index'
+    assert_difference 'Chef.count', -1 do
+      delete chef_path(@chef2)
+    end
+    assert_redirected_to chefs_path
+    assert_not flash.empty?
+  end
+
+Update the model test for Chef model (chef_test.rb) under test/models folder: 
+
+Model test for chef:
+
+  test "associated recipes should be destroyed" do
+    @chef.save
+    @chef.recipes.create!(name: "testing delete", 
+                    description "testing delete function")
+    assert_difference 'Recipe.count', -1 do
+      @chef.destroy
+    end
+  end
+
+Add the destroy action to chefs_controller.rb file:
+
+def destroy
+  @chef = Chef.find(params[:id])
+  @chef.destroy
+  flash[:danger] = "Chef and all associated recipes have been deleted"
+  redirect_to chefs_path
+end
+
+Now we need to update the chef.rb model file and dependent destroy to the has_many :recipes line:
+has_many :recipes, dependent: :destroy
+
+Now all the recipes this chef has created will be removed once they're deleted
+
+Last step: add the delete option in the chefs listing page (index.html.erb) in app/views/chefs folder:
+<li><%= link_to "Delete this chef", chef_path(chef), 
+          method: :delete, 
+data: {confirm: "Are you sure you want to delete this chef and all associated recipes?"} %></li>
+
+Make sure the above line within quotes is not in separated lines
+
+Run rails test to ensure all tests pass
+
+Try deleting a chef from the browser

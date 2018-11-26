@@ -1,0 +1,20 @@
+CRUD kickoff - Text lecture
+Section 1, Lecture 19
+C - Create, R - Read, U - Update, D - Delete
+Standard database operations - CRUD
+
+Create a migration file to create todos table:
+rails generate migration create_todos
+
+Then within the change method under create_table, fill in the attribute details:
+t.string :name
+t.text :description
+
+Save this file and then run the migration:
+rails db:migrate
+
+To start the rails console:
+rails console
+
+To exit the rails console:
+exit

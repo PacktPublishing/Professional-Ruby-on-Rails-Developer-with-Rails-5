@@ -1,0 +1,65 @@
+Complete homepage - Text directions and code
+Section 3, Lecture 51
+Upload an image for the background to your images folder. Ensure it's selected then go to file and select Upload local files, select the image to upload (.png or .jpg)
+
+Add the following to the jumbotron class in custom.css.scss:
+
+.jumbotron {
+  background-image: asset-url('cover_image.png');
+  background-size: cover;
+  height: 300px;
+}
+
+Make sure your image name is shown there, mine is cover_image.png therefore that's shown in the code above
+
+Also add some styling, depending on your background image:
+
+.jumbotron h1 {
+  color: #fff;
+  text-align: center;
+  margin-bottom: 30px;
+  letter-spacing: -1px;
+  font-weight: bold;
+}
+
+.jumbotron h2 {
+  color: #fff;
+  text-align: center;
+  margin-bottom: 30px;
+  letter-spacing: -1px;
+  font-weight: bold;
+}
+
+Go ahead and give the button a class and add styling as you wish to it, I chose btn-xlarge
+
+Then added the following to custom.css.scss:
+
+.btn-xlarge {
+  background-color: pick_a_color_of_choice;
+}
+
+I added the following code to my home.html.erb to fill it out, feel free to use your own styling/content or the code below:
+
+<div class="row">
+  <div class="col-lg-4">
+    <h2>Heading</h2>
+    <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
+    <p><a class="btn btn-primary btn-xlarge" href="#" role="button">View details »</a></p>
+  </div>
+  <div class="col-lg-4">
+    <h2>Heading</h2>
+    <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
+    <p><a class="btn btn-primary btn-xlarge" href="#" role="button">View details »</a></p>
+ </div>
+  <div class="col-lg-4">
+    <h2>Heading</h2>
+    <p>Donec sed odio dui. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Vestibulum id ligula porta felis euismod semper. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa.</p>
+    <p><a class="btn btn-primary btn-xlarge" href="#" role="button">View details »</a></p>
+  </div>
+</div>
+
+Assignment: Create the footer, add styling and then paste an image of it to the Q & A!
+
+Make app production ready (ensure the db gems are in their appropriate groups), then do a commit, create a heroku app, deploy!
+
+Assignment: Post a link to your herokuapp homepage to the Q & A of the video

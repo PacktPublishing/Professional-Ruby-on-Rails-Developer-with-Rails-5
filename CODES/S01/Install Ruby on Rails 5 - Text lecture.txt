@@ -1,0 +1,21 @@
+Install Ruby on Rails 5 - Text lecture
+Section 1, Lecture 11
+To check what version of Rails is installed, type in:
+
+rails -v
+
+To check what version of Ruby is installed, type in:
+ruby -v
+
+To display the versions of ruby in your machine, type in:
+rvm list
+
+To install ruby 2.3.3 (if you have 2.3.0 of above you're fine, this is 
+just an example):
+rvm install ruby-2.3.3
+
+To make this the default:
+rvm --default use 2.3.3
+
+To install a specific version of rails (5.0.0.1 in our case), type in:
+gem install rails -v 5.0.0.1

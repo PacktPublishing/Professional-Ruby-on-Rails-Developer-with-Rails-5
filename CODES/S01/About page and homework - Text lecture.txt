@@ -1,0 +1,19 @@
+About page and homework - Text lecture
+Section 1, Lecture 17
+To create an about page, first create the route in the routes file:
+
+get '/about', to: 'pages#about'
+
+Then define an about action in pages_controller.rb file:
+def about
+end
+
+Create a new file called about.html.erb in the views/pages folder and fill it in:
+<h1>This is the about page</h1>
+
+Then visit the route by going to your application homepage and add in /about to the end of the url
+
+Homework assignment:
+
+1) Create a help page like we added the about page
+2) Post an image of the help page to the Q & A of the prior video lecture

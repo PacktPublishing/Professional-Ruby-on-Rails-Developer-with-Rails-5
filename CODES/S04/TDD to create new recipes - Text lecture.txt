@@ -1,0 +1,39 @@
+TDD to create new recipes - Text lecture
+Section 4, Lecture 84
+Complete the invalid recipe submission test in the recipes_test.rb file under test/integration folder:
+
+test "reject invalid recipe submissions" do
+  get new_recipe_path
+  assert_template 'recipes/new'
+  assert_no_difference 'Recipe.count' do
+    post recipes_path, params: { recipe: { name: " ", description: " " } }
+  end
+  assert_template 'recipes/new'
+  assert_select 'h2.panel-title'
+  assert_select 'div.panel-body'
+end
+
+Update the routes file, remove all the recipe related routes and replace with:
+resources :recipes
+
+Ensure you have a chef defined in the db, if not, create a chef from the console
+
+Add the create action and private recipe_params (just above the last end in the file) in the recipes_controller.rb file:
+def create
+  @recipe = Recipe.new(recipe_params)
+  @recipe.chef = Chef.first
+  if @recipe.save
+    flash[:success] = "Recipe was created successfully!"
+    redirect_to recipe_path(@recipe)
+  else
+    render 'new'
+  end
+end
+
+private
+
+  def recipe_params
+    params.require(:recipe).permit(:name, :description)
+  end
+
+The styling for the error portion will be completed in the next video so the text will be added there

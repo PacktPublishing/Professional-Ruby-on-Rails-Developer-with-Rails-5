@@ -1,0 +1,24 @@
+Start new recipe - Text lecture
+Section 4, Lecture 80
+Add the tests to your recipe_test.rb test file under the test/integration folder:
+
+  test "create new valid recipe" do
+    get new_recipe_path
+  end
+  
+  test "reject invalid recipe submissions" do
+    get new_recipe_path
+  end
+
+Add the new recipe route to the routes.rb file in the config folder:
+get '/recipes/new', to: 'recipes#new', as: 'new_recipe'
+
+make sure to add it before the show route otherwise it won't work
+
+Add the new action to the recipes_controller.rb file:
+
+def new
+  
+end
+
+Add a view called new.html.erb to recipes folder under app/views folder, we will fill this in the next video

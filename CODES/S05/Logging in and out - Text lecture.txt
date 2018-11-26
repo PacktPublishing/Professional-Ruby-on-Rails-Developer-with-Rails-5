@@ -1,0 +1,60 @@
+Logging in and out - Text lecture
+Section 5, Lecture 118
+Run:
+rails generate integration_test chefs_login
+
+Then pull up the file created and fill in the two tests and setup methods:
+  def setup
+    @chef = Chef.create!(chefname: "mashrur", 
+            email: "mashrur@example.com", password: "password")
+  end
+  
+  test "invalid login is rejected" do
+    get login_path
+    assert_template 'sessions/new'
+    post login_path, params: { session: { email: " ", 
+                                              password: " " } }
+    assert_template 'sessions/new'
+    assert_not flash.empty?
+    get root_path
+    assert flash.empty?
+  end
+  
+  test "valid login credentials accepted and begin session" do
+    get login_path
+    assert_template 'sessions/new'
+    post login_path, params: { session: { email: @chef.email, 
+                                    password: @chef.password } }
+    assert_redirected_to @chef
+    follow_redirect!
+    assert_template 'chefs/show'
+    assert_not flash.empty?
+  end
+
+Complete the create and destroy actions in the sessions_controller.rb file:
+  def create
+    chef = Chef.find_by(email: params[:session][:email].downcase)
+    if chef && chef.authenticate(params[:session][:password])
+      session[:chef_id] = chef.id
+      flash[:success] = "You have successfully logged in"
+      redirect_to chef
+    else
+    flash.now[:danger] = "There was something wrong with your login information"
+      render 'new'
+    end
+  end
+  
+  def destroy
+    session[:chef_id] = nil
+    flash[:success] = "You have logged out"
+    redirect_to root_path
+  end
+
+How do we simulate logging in? The encrypted id is stored in the session hash in your browser's cookie. Setting the session[:chef_id] used here accomplishes this. 
+
+Add the login and logout links to the _navigation.html.erb as you please, I added it towards the end
+
+<li><%= link_to 'Log in', login_path %></li>
+<li><%= link_to 'Log out', logout_path, method: :delete %></li>
+
+Test it out, that's all we need from a sessions perspective. Next we'll work on some helpful methods that we can use to restrict activities from the UI and also from the controller itself

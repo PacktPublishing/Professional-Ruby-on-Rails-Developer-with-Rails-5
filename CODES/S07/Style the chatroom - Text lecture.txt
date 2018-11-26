@@ -1,0 +1,109 @@
+Style the chatroom - Text lecture
+Section 7, Lecture 162
+Update the show.html.erb view under app/views/chatrooms folder:
+<%= render 'shared/page_title', title: "ChefChat" %>
+
+<div class="row chat-container">
+  <div class="col-md-8 center-block">
+    <div class="messages" id="messages">
+      <%= render @messages %>
+    </div>
+    <hr />
+    <div class="message-container">
+      <%= form_for(@message, :html => {class: "form-horizontal", 
+                                  role: "form"}) do |f| %>
+        <%= f.text_area :content, class: "form-control", 
+                                placeholder: "Say something!" %>
+        <%= f.submit "Send", class: 'btn btn-primary' %>
+      <% end %>
+    </div>    
+  </div>
+</div>
+
+Add styling to custom.css.scss for the new classes:
+
+.center-block {
+  float: none;
+}
+
+.chat-container {
+  bottom: 0;
+  left: 0;
+  right: 0;
+  top: 150px;
+  width: 80;
+}
+
+.message-container {
+  .form-control {
+    float: left;
+    width: 80%;
+  }
+  .btn {
+    float: right;
+    position: relative;
+    height: 54px !important;
+    width: 18%;
+  }
+}
+
+.message {
+  padding-left: 5px;
+  padding-top: 10px;
+}
+
+.messages {
+  border: 1px solid #eaeaea;
+  height: 16em;
+  position: relative;
+  overflow: auto;
+}
+
+You can add the following js functions to app/assets/javascripts/application.js file to scroll
+to bottom:
+
+function scrollToBottom(){
+  if($('#messages').length > 0) {
+    $('#messages').scrollTop($('#messages')[0].scrollHeight);
+  }
+}
+
+$(document).ready(function() {
+  scrollToBottom();
+});
+
+Add the code for methods in the messages_controller.rb file:
+class MessagesController < ApplicationController
+  before_action :require_user
+  
+  def create
+    @message = Message.new(message_params)
+    @message.chef = current_chef
+    if @message.save
+      redirect_to chat_path
+    else
+      render 'chatrooms/show'
+    end
+  end
+  
+  private
+  
+  def message_params
+    params.require(:message).permit(:content)
+  end
+end
+
+Update the message.rb model file and add a most_recent method in it:
+
+class Message < ApplicationRecord
+  belongs_to :chef
+  validates :content, presence: true
+  validates :chef_id, presence: true
+  
+  def self.most_recent
+    order(:created_at).last(20)
+  end
+end
+
+Update the show action in the chatrooms_controller.rb file where the @messages instance variable is initiated:
+@messages = Message.most_recent

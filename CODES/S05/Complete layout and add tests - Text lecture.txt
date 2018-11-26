@@ -1,0 +1,141 @@
+Complete layout and add tests - Text lecture
+Section 5, Lecture 124
+First update show.html.erb under views/recipes folder and check for @chef.recipe as well:
+<% if logged_in? && current_chef == @recipe.chef %>
+  <%= link_to "Edit this recipe", edit_recipe_path(@recipe), 
+                                class: "btn btn-xs btn-warning" %>
+  <%= link_to "Delete this recipe", recipe_path(@recipe), 
+                                      method: :delete,
+      data: { confirm: "Are you sure you want to delete this recipe?" },
+                                    class: "btn btn-xs btn-danger" %>
+<% end %>                                  
+<%= link_to "Return to recipes listing", recipes_path, 
+                              class: "btn btn-xs btn-primary" %>
+
+Update the _recipe.html.erb partial under views/recipes folder and add these actions:
+<% obj.each do |recipe| %>
+  <div class="row">
+    <div class="col-md-2">
+      <section class="chef_info center">
+        <%= gravatar_for(recipe.chef, size: 120) %>
+      </section>
+    </div>
+    <div class="col-md-8 well">
+      <h4><%= link_to recipe.name, recipe_path(recipe) %></h4>
+      <p><%= truncate(recipe.description, length: 150) %></p>
+      <p>
+        <span class="quiet"><small>Created 
+          <%= time_ago_in_words(recipe.created_at) %> ago</small></span>
+      </p> 
+      <% if logged_in? && current_chef == recipe.chef %>
+        <div class="recipe-actions">
+          <%= link_to "Edit this recipe", 
+                      edit_recipe_path(recipe), 
+                              class: "btn btn-xs btn-warning" %>
+          <%= link_to "Delete this recipe", recipe_path(recipe), 
+                                  method: :delete,
+      data: { confirm: "Are you sure you want to delete this recipe?" },
+                                  class: "btn btn-xs btn-danger" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>
+
+Add a helper method for tests in the test/test_helper.rb file:
+
+def sign_in_as(user, password)
+  post login_path, params: { session: { email: user.email, 
+                                          password: password } }
+end
+
+Update the tests one by one by adding in a call to the sign_in_as method to simulate signed in chefs:
+recipes_test.rb
+  test "should get recipes show" do
+    sign_in_as(@chef, "password")
+    get recipe_path(@recipe)
+    assert_template 'recipes/show'
+    assert_match @recipe.name, response.body
+    assert_match @recipe.description, response.body
+    assert_match @chef.chefname, response.body
+assert_select 'a[href=?]', edit_recipe_path(@recipe), text: "Edit this recipe"
+    assert_select 'a[href=?]', recipe_path(@recipe), text: "Delete this recipe"
+    assert_select 'a[href=?]', recipes_path, text: "Return to recipes listing"
+  end  
+
+  test "create new valid recipe" do
+    sign_in_as(@chef, "password")
+    get new_recipe_path
+    assert_template 'recipes/new'
+    name_of_recipe = "chicken saute"
+description_of_recipe = "add chicken, add vegetables, cook for 20 minutes, serve delicious meal"
+    assert_difference 'Recipe.count', 1 do
+      post recipes_path, params: { recipe: { name: name_of_recipe, 
+                              description: description_of_recipe}}
+    end
+    follow_redirect!
+    assert_match name_of_recipe.capitalize, response.body
+    assert_match description_of_recipe, response.body
+  end
+
+recipes_delete_test.rb
+  test "successfully delete a recipe" do
+    sign_in_as(@chef, "password")
+    get recipe_path(@recipe)
+    assert_template 'recipes/show'
+    assert_select 'a[href=?]', recipe_path(@recipe), text: "Delete this recipe"
+    assert_difference 'Recipe.count', -1 do
+      delete recipe_path(@recipe)
+    end
+    assert_redirected_to recipes_path
+    assert_not flash.empty?
+  end
+
+chefs_listing_test.rb
+
+  test "should delete chef" do
+    sign_in_as(@chef2, "password")
+    get chefs_path
+    assert_template 'chefs/index'
+    assert_difference 'Chef.count', -1 do
+      delete chef_path(@chef2)
+    end
+    assert_redirected_to chefs_path
+    assert_not flash.empty?
+  end
+
+Fix the chefs_controller.rb file on top:
+  before_action :set_chef, only: [:show, :edit, :update, :destroy] 
+
+:destroy instead of :delete
+
+Add the layout tests in chefs_login_test.rb:
+
+  test "invalid login is rejected" do
+    get login_path
+    assert_template 'sessions/new'
+    post login_path, params: { session: { email: " ", password: " " } }
+    assert_template 'sessions/new'
+    assert_not flash.empty?
+    assert_select "a[href=?]", login_path
+    assert_select "a[href=?]", logout_path, count: 0
+    get root_path
+    assert flash.empty?
+  end
+  
+  test "valid login credentials accepted and begin session" do
+    get login_path
+    assert_template 'sessions/new'
+    post login_path, params: { session: { email: @chef.email, 
+                                    password: @chef.password } }
+    assert_redirected_to @chef
+    follow_redirect!
+    assert_template 'chefs/show'
+    assert_not flash.empty?
+    assert_select "a[href=?]", login_path, count: 0
+    assert_select "a[href=?]", logout_path
+    assert_select "a[href=?]", chef_path(@chef)
+    assert_select "a[href=?]", edit_chef_path(@chef)
+  end
+
+Ensure test suite is passing

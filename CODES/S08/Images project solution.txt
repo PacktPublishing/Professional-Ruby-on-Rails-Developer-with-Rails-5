@@ -1,0 +1,199 @@
+Images project solution
+Section 8, Lecture 172
+First we will add the carrierwave, mini_magick and fog gems to gemfile:
+gem 'carrierwave', '0.11.2'
+gem 'mini_magick'
+gem 'fog'
+
+Then run:
+bundle install --without production
+
+We'll now need to generate an uploader, you can refer to the documentation for carrierwave here: https://github.com/carrierwaveuploader/carrierwave, it has step by step directions for uploading images with an avatar example, we'll customize this for our app, run:
+rails generate uploader Image
+
+This will create an image_uploader.rb file under app/uploaders, this will have :file as the default storage system which is fine for development, we will use fog for production, we already included the fog gem in the gemfile to help with that later on. This image_uploader.rb file also includes a path to the directory where the images will be stored (uploads/)
+
+Now once a chef uploads an image for a recipe, you'll need to associate the recipe with the image, therefore you need a string attribute in your recipes table named image:
+rails generate migration add_image_to_recipes
+
+Open the migration file generated and fill in the change method:
+def change
+  add_column :recipes, :image, :string    
+end
+
+save it and run the migration:
+rails db:migrate
+
+In your recipe.rb model file, add the following, this will form the association:
+mount_uploader :image, ImageUploader
+
+Now in your _form.html.erb under app/views/recipes folder, add a multipart: true to the form_for to allow for file uploads, you'll also need a file_field tag and give it the :image attribute:
+<%= form_for(@recipe, :html => {class: "form-horizontal", multipart: true, role: "form"}) do |f| %>
+
+Now add a form-group for the file upload tag, after the form-group for ingredients and before the submit:
+
+<div class="form-group">
+  <div class="control-label col-md-2">
+    <%= f.label :image, "Add Image" %>
+  </div>
+  <div class="col-md-8">
+    <%= f.file_field :image, accept: 'image/jpeg,image/gif,image/png' %>
+  </div>
+</div>
+
+Now in your recipes_controller.rb file, under recipe_params method, you need to whitelist :image:
+def recipe_params
+  params.require(:recipe).permit(:name, :description, :image, ingredient_ids: [])
+end
+
+Test out the form, it should show up, and allow you to add and edit recipes (where you can change the file associated with the recipe image to change the image)
+
+Now we have to display the image if the recipe has an image, we want to display this both in the show recipe page and the _recipe.html.erb partial. First add the following code to the show.html.erb page for recipes right after the initial div class declaration:
+  <div align="center">
+    <%= image_tag @recipe.image.url if @recipe.image? %>
+  </div>
+
+So it'll look like (only the first few lines shown below):
+<%= render 'shared/page_title', title: @recipe.name %>
+
+<div class="well col-md-8 col-md-offset-2">
+  <div align="center">
+    <%= image_tag @recipe.image.url if @recipe.image? %>
+  </div>
+  <h4 class="center description"><strong>Steps: </strong></h4>
+  <hr />
+  <%= simple_format(@recipe.description) %>
+  <hr />
+  .
+  .
+
+Now in the _recipe.html.erb partial right after the closing </div> for the "col-md-8 well", add the following code:
+<div class="col-md-2">
+  <%= image_tag(recipe.image.url, size: "150x100") if recipe.image? %>
+</div>
+
+The ending of the file should look something like below after the above code is added:
+    <div class="col-md-2">
+      <%= image_tag(recipe.image.url, size: "150x100") if recipe.image? %>
+    </div>
+  </div>
+<% end %>
+
+Notice that we specified the size there for the image, you can make it larger or smaller as you please. You can also give it a class if you want to style it further, example:
+image_tag(some_image.image.url, size: "150x100", class: "custom-image-style")
+
+Test it out by adding a couple of images to your local development app
+
+Now we will resize the images so they are resized before being saved by the app, and add whitelist for allowing specific extensions for files, pull up image_uploader.rb file -> 
+uncheck the line that says # include CarrierWave::MiniMagick, and right after that a resize method provided by minimagick so that all images are 250 pixels by 250pixels max in the db:
+
+include CarrierWave::MiniMagick
+process resize_to_limit: [250, 250]
+
+Then scroll down and uncheck the method for whitelisting image extensions:
+def extension_white_list
+  %w(jpg jpeg gif png)
+end
+
+We need to install imagemagick to our development environment to resize images. 
+To install it on cloud9:
+sudo apt-get update
+sudo apt-get install imagemagick --fix-missing
+
+If using local machine (not cloud9 IDE), google how to do it for your machine
+
+Now try it out in from the browser
+
+Show hidden files and open the .gitignore file, add the following folder to it so images in local development aren't pushed to your github repo:
+/public/uploads
+
+On cloud9 you can see hidden files by clicking on the top right widget and show hidden files
+
+Image upload in production:
+You donot want the local file system used (check out storage :file in image_uploader) to be used in production, for actual image hosting you want it outsourced to a reputed third party and simply include a link to it, basically services like heroku will go a step further and remove files from your uploads folder where the :file storage system stores images. For this image upload feature in production we will use AWS s3 bucket (simple storage)
+
+Note however, not all production image hosting services are free, they're extremely cheap and usually free for a while, (AWS last I checked gave 1 year free and very low $$), I'm picking AWS since I've used it for a wide variety of topics/courses and they're very good and easy, but this is totally up to you, you can skip this step altogether:
+
+Sign up for an account with AWS
+
+In your image_uploader.rb file under app/uploaders folder, replace the line that says storage :file with the following:
+
+if Rails.env.production?
+  storage :fog
+else
+  storage :file
+end
+
+Sign up for Amazon web services at aws.amazon.com
+
+Follow the example youtube videos (see in sequence 1 and 2) at:
+1) https://youtu.be/k2xHnfM-uaQ
+2) https://youtu.be/RrGJyhHFFPU
+
+Steps below:
+
+1) Create IAM user
+2) Create S3 bucket
+3) Create policy with s3 bucket details
+4) Attach policy to IAM user created
+
+Here is a sample policy, replace the code with your s3 bucket name as needed below:
+{
+
+"Version": "2012-10-17",
+
+"Statement": [
+
+{
+
+"Effect": "Allow",
+
+"Action": "s3:*",
+
+"Resource": [
+
+"arn:aws:s3:::yours3bucketname",
+
+"arn:aws:s3:::yours3bucketname/*"
+
+]
+
+},
+
+{
+
+"Effect": "Allow",
+
+"Action": "s3:ListAllMyBuckets",
+
+"Resource": "arn:aws:s3:::*"
+
+}
+
+]
+
+}
+
+Set your credentials for amazon IAM user and S3 bucket with heroku:
+heroku config:set S3_ACCESS_KEY=youraccesskeyforIAMuser
+heroku config:set S3_SECRET_KEY=yoursecretykeyforIAMuser
+heroku config:set S3_BUCKET=yours3bucketname
+
+If you're in Europe or some other regions and having difficulty with the setup, you have
+to get your region id as well and set it:
+
+heroku config:set S3_REGION=yours3bucketregion
+
+Under config/initializers folder create a file called carrier_wave.rb and fill it in:
+
+if Rails.env.production?
+CarrierWave.configure do |config|
+config.fog_credentials = {
+:provider => 'AWS',
+:aws_access_key_id => ENV['S3_ACCESS_KEY'],
+:aws_secret_access_key => ENV['S3_SECRET_KEY']
+:region => ENV[’S3_REGION’] #This is usually required for European Users not all
+}
+config.fog_directory = ENV['S3_BUCKET']
+end
+end

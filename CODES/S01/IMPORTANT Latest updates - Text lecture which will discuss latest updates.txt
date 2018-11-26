@@ -1,0 +1,37 @@
+IMPORTANT: Latest updates - Text lecture which will discuss latest updates
+Section 1, Lecture 5
+Welcome to the course! 
+
+Final code for app built in the course - https://github.com/proror5railsudemy/myrecipes
+
+Live-help - http://www.mashrurhossain.com/#live-help
+
+Update 06/05/2018 - In the next video (Try ruby) we practice some Ruby, the link for this has now changed (doesn't match the video anymore), you can still access the content to match the video at https://ruby.github.io/TryRuby/ instead. Good luck!
+
+DEVELOPMENT ENVIRONMENT UPDATE:
+
+- We use cloud9 online IDE for this course (free), I strongly recommend following along with the video series step by step so you don't have any issues with getting started (and later on for that matter). 
+
+
+Due to the changing nature of how browser-based IDEs look and the plans they offer (we are only interested in the free tiers) the setup steps may look different at different times. However, I will keep this document updated with directions on proper setup at all times, so not to worry!
+
+Current Recommendation: I am recommending the use of cloud9 or codeanywhere as the browser based-IDE to use for this course. Cloud9 is awesome and I use it for all development. It is part of AWS now so the sign-up is a bit more complicated if done by yourself (instead of requesting access from me which makes it easy). Codeanywhere is also very good and easy to sign-up for (they're constantly improving as well). I will show you how to sign-up, get familiar with, similarities (and 2-3 minor differences between the environments) and help you get you started using them. 
+
+Progression of setup videos and how to use them in order are listed below:
+
+Lecture 7: Cloud9 & Codeanywhere sign-up video -> (Recommended) You can follow along and setup your IDE by signing up (see IMPORTANT note below)
+
+Lecture 8: Familiarization with IDE -> (Recommended) Definitely follow along with this video to get familiar with and start using the browser based IDEs
+
+If you want to set up a local development environment and are using a Mac, a local setup video has been added to Section 9 (note: Mac users only)
+
+IMPORTANT: If you sign-up for cloud9 directly, it requires an AWS account to be set up (but is free for first year to use).  Alternatively, if you don't have a credit card or you have one but don't want to use it at cloud9, or find AWS sign-up process annoying (plus there are permissions involved with creating users etc.) then you can either use www.codeanywhere.com OR you can request a cloud9 invitation link from me at http://www.mashrurhossain.com/#inquire and you can use cloud9 without having a credit card on file or using AWS account. Note, however, this is not free for me to provide and there's no automated system in place, so I will verify each request and send individual invitations on a regular basis, you will also be signed up to be part of my Rails newsletter community (if you don't want to do this, please use codeanywhere or sign-up directly at AWS instead of requesting a link from me).
+
+You might get a 50 team member limit error when you sign-up through this link - that's totally fine, you can click on the dashboard link on the top right to create your own workspace, image below:
+
+
+
+
+Please don't hesitate to use the live chat or take a look at the Q&A or post to the discussions if you have ANY confusion whatsoever about any of this and other students or myself will be more than happy to help. 
+
+Windows users: For this course and Rub/Rails learning purposes please use an online IDE like the one used in this course, my recommendation is to not try to install Ruby on Rails locally in your PC, you'll hit unexpected errors and gem dependency issues/behavior later on that we will not be able to troubleshoot
